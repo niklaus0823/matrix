@@ -1,22 +1,19 @@
 {
-  "name": "matrix-cli",
+  "name": "matrixes-cli",
   "version": "0.0.1",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [
-    "Microservice"
-  ],
   "description": "A variety of command-line tools are provided to help developers build a base microservice.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/niklaus0823/matrix-cli.git"
+    "url": "git+https://github.com/niklaus0823/matrixes-cli.git"
   },
   "bugs": {
-    "url": "https://github.com/niklaus0823/matrix-cli/issues"
+    "url": "https://github.com/niklaus0823/matrixes-cli/issues"
   },
-  "homepage": "https://github.com/niklaus0823/matrix-cli#readme",
+  "homepage": "https://github.com/niklaus0823/matrixes-cli#readme",
   "license": "MIT",
   "author": "fengjie",
   "engines": {
