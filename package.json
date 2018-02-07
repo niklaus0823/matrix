@@ -1,33 +1,31 @@
 {
-  "name": "matrix",
+  "name": "matrix-cli",
   "version": "0.0.1",
   "main": "index.js",
-  "bin": {
-    "matrix": "./build/bin/matrix.js"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "micro",
-    "node"
+    "Microservice"
   ],
-  "description": "Microservice framework for Node.js",
+  "description": "A variety of command-line tools are provided to help developers build a base microservice.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/niklaus0823/matrix.git"
+    "url": "git+https://github.com/niklaus0823/matrix-cli.git"
   },
   "bugs": {
-    "url": "https://github.com/niklaus0823/matrix/issues"
+    "url": "https://github.com/niklaus0823/matrix-cli/issues"
   },
-  "homepage": "https://github.com/niklaus0823/matrix#readme",
+  "homepage": "https://github.com/niklaus0823/matrix-cli#readme",
   "license": "MIT",
   "author": "fengjie",
   "engines": {
     "node": ">=8"
   },
   "dependencies": {
+
   },
   "devDependencies": {
+
   }
 }
