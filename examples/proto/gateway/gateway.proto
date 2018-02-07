@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "order/order.proto";
+
+package gateway;
+
+// gPRC-getway
+service GatewayApiService {
+    rpc GetOrderApi (order.GetOrderRequest) returns (order.Order) {
+        option (google.api.http) = {
+            post: "/v1/getOrder"
+            body: "*"
+        };
+    }
+}

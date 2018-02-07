@@ -20,9 +20,7 @@
     "node": ">=8"
   },
   "dependencies": {
-
+    "grpc": "^1.8.4"
   },
-  "devDependencies": {
-
-  }
+  "devDependencies": {}
 }
