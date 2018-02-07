@@ -1,0 +1,33 @@
+{
+  "name": "matrix",
+  "version": "0.0.1",
+  "main": "index.js",
+  "bin": {
+    "matrix": "./build/bin/matrix.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "micro",
+    "node"
+  ],
+  "description": "Microservice framework for Node.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/niklaus0823/matrix.git"
+  },
+  "bugs": {
+    "url": "https://github.com/niklaus0823/matrix/issues"
+  },
+  "homepage": "https://github.com/niklaus0823/matrix#readme",
+  "license": "MIT",
+  "author": "fengjie",
+  "engines": {
+    "node": ">=8"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}
