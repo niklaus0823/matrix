@@ -22,12 +22,9 @@
 * [aliyun-node/v8-gc-log-parser](https://github.com/aliyun-node/v8-gc-log-parser)
 * [dainis/node-gcstats](https://github.com/dainis/node-gcstats)
 
-
-
 # Others
 
 .proto ->
 
-* grpc.load(PROTO_PATH) -> proto package client/server/schema
-* pbjs/pbts -> compiled.js compiled.d.ts -> client/server/schema
+* pbjs/pbts -> compiled.js compiled.d.ts -> schema
 * protoc plugins -> proto.js，proto.d.ts，proto_grpc.js，proto_grpc.ts -> client/server/schema
