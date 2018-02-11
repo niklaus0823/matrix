@@ -1,11 +1,14 @@
 {
   "name": "matrixes-cli",
   "version": "0.0.1",
+  "description": "A variety of command-line tools are provided to help developers build a base microservice.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
-  "description": "A variety of command-line tools are provided to help developers build a base microservice.",
+  "bin": {
+    "protoc-gen-ts": "./build/cli/proto-gen-ts.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/niklaus0823/matrixes-cli.git"
@@ -14,13 +17,29 @@
     "url": "https://github.com/niklaus0823/matrixes-cli/issues"
   },
   "homepage": "https://github.com/niklaus0823/matrixes-cli#readme",
+  "keywords": [
+    "protobuf",
+    "protoc",
+    "typescript",
+    "ts",
+    "grpc",
+    "service",
+    "proto3",
+    "microservice"
+  ],
   "license": "MIT",
   "author": "fengjie",
   "engines": {
     "node": ">=8"
   },
   "dependencies": {
-    "grpc": "^1.8.4"
+    "@types/google-protobuf": "^3.2.7",
+    "google-protobuf": "^3.5.0",
+    "grpc": "^1.9.0",
+    "protobufjs": "^6.8.4",
+    "recursive-readdir": "^2.2.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/node": "^9.4.1"
+  }
 }
