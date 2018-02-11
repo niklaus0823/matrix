@@ -3,4 +3,4 @@
 BASEDIR=$(dirname "$0")
 cd ${BASEDIR}/../
 
-node ./build/cli/proto-gen-ts.js "$@"
+node ./build/cli/protoc-gen-ts.js "$@"

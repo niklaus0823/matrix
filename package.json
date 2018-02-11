@@ -1,13 +1,13 @@
 {
   "name": "matrixes-cli",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A variety of command-line tools are provided to help developers build a base microservice.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "bin": {
-    "protoc-gen-ts": "./build/cli/proto-gen-ts.js"
+    "protoc-gen-ts": "./build/cli/protoc-gen-ts.js"
   },
   "repository": {
     "type": "git",

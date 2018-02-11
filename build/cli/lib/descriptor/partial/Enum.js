@@ -15,4 +15,3 @@ var Enum;
     }
     Enum.print = print;
 })(Enum = exports.Enum || (exports.Enum = {}));
-//# sourceMappingURL=Enum.js.map

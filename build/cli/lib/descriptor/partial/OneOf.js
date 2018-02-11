@@ -19,4 +19,3 @@ var OneOf;
     }
     OneOf.print = print;
 })(OneOf = exports.OneOf || (exports.OneOf = {}));
-//# sourceMappingURL=OneOf.js.map

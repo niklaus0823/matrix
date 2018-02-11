@@ -68,4 +68,3 @@ var FieldTypes;
     }
     FieldTypes.getFieldType = getFieldType;
 })(FieldTypes = exports.FieldTypes || (exports.FieldTypes = {}));
-//# sourceMappingURL=FieldTypes.js.map

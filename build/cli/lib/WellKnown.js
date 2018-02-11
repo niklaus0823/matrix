@@ -14,4 +14,3 @@ exports.WellKnownTypesMap = {
     'google/protobuf/type.proto': 'google-protobuf/google/protobuf/type_pb',
     'google/protobuf/wrappers.proto': 'google-protobuf/google/protobuf/wrappers_pb'
 };
-//# sourceMappingURL=WellKnown.js.map

@@ -56,5 +56,3 @@ Utility.withAllStdIn((inputBuff: Buffer) => {
         process.exit(1);
     }
 });
-
-

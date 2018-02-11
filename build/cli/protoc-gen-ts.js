@@ -49,4 +49,3 @@ Utility_1.Utility.withAllStdIn((inputBuff) => {
         process.exit(1);
     }
 });
-//# sourceMappingURL=proto-gen-ts.js.map
