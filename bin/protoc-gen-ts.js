@@ -29,12 +29,11 @@ var path = require('path');
 var execFile = require('child_process').execFile;
 
 var exe_ext = process.platform === 'win32' ? '.exe' : '';
+var cmd_ext = process.platform === 'win32' ? '.cmd' : '';
 
 var protoc = path.resolve(__dirname, 'protoc' + exe_ext);
 
-var plugin = (process.platform === 'win32')
-  ? path.resolve(__dirname, 'protoc-gen-ts.cmd')
-  : path.resolve(__dirname, '..', 'build', 'cli', 'protoc-gen-ts.js');
+var plugin = path.resolve(__dirname, 'protoc-gen-ts' + cmd_ext);
 
 var args = ['--plugin=protoc-gen-ts=' + plugin].concat(process.argv.slice(2));
 
