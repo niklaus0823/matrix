@@ -1,6 +1,11 @@
-#!/usr/bin/env node
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * This is the ProtoC compiler plugin.
+ *
+ * It only accepts stdin/stdout output according to the protocol
+ * specified in [plugin.proto](https://github.com/google/protobuf/blob/master/src/google/protobuf/compiler/plugin.proto).
+ */
 const plugin_pb_1 = require("google-protobuf/google/protobuf/compiler/plugin_pb");
 const ExportMap_1 = require("./lib/ExportMap");
 const Utility_1 = require("./lib/Utility");

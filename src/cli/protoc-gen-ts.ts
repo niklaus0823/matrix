@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * This is the ProtoC compiler plugin.
  *

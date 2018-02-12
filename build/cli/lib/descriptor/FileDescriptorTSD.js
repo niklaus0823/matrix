@@ -3,9 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Utility_1 = require("../Utility");
 const Printer_1 = require("../Printer");
 const WellKnown_1 = require("../WellKnown");
-const message_1 = require("./partial/message");
-const enum_1 = require("./partial/enum");
-const extensions_1 = require("./partial/extensions");
+const Message_1 = require("./partial/Message");
+const Enum_1 = require("./partial/Enum");
+const Extensions_1 = require("./partial/Extensions");
 var FileDescriptorTSD;
 (function (FileDescriptorTSD) {
     function print(fileDescriptor, exportMap) {
@@ -30,13 +30,13 @@ var FileDescriptorTSD;
             }
         });
         fileDescriptor.getMessageTypeList().forEach(enumType => {
-            printer.print(message_1.Message.print(fileName, exportMap, enumType, 0, fileDescriptor));
+            printer.print(Message_1.Message.print(fileName, exportMap, enumType, 0, fileDescriptor));
         });
         fileDescriptor.getExtensionList().forEach(extension => {
-            printer.print(extensions_1.Extension.print(fileName, exportMap, extension, 0));
+            printer.print(Extensions_1.Extension.print(fileName, exportMap, extension, 0));
         });
         fileDescriptor.getEnumTypeList().forEach(enumType => {
-            printer.print(enum_1.Enum.print(enumType, 0));
+            printer.print(Enum_1.Enum.print(enumType, 0));
         });
         printer.printEmptyLn();
         return printer.getOutput();

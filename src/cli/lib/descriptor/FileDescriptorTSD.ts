@@ -5,9 +5,9 @@ import {Utility} from '../Utility';
 import {Printer} from '../Printer';
 import {WellKnownTypesMap} from '../WellKnown';
 
-import {Message} from './partial/message';
-import {Enum} from './partial/enum';
-import {Extension} from './partial/extensions';
+import {Message} from './partial/Message';
+import {Enum} from './partial/Enum';
+import {Extension} from './partial/Extensions';
 
 export namespace FileDescriptorTSD {
 
