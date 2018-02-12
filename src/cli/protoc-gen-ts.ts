@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /**
  * This is the ProtoC compiler plugin.
  *
@@ -40,7 +41,7 @@ Utility.withAllStdIn((inputBuff: Buffer) => {
 
             if (generateServices) {
                 const fileDescriptorOutput = FileDescriptorTSServices.print(fileNameToDescriptor[fileName], exportMap);
-                if (fileDescriptorOutput != '') {
+                if (fileDescriptorOutput !== '') {
                     const thisServiceFileName = Utility.svcFilePathFromProtoWithoutExtension(fileName);
                     const thisServiceFile = new CodeGeneratorResponse.File();
                     thisServiceFile.setName(thisServiceFileName + '.d.ts');

@@ -1,41 +1,41 @@
 {
   "name": "matrixes-cli",
-  "version": "0.0.2",
-  "description": "A variety of command-line tools are provided to help developers build a base microservice.",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "bin": {
-    "protoc-gen-ts": "./build/cli/protoc-gen-ts.js"
-  },
+  "version": "0.0.3",
+  "author": "fengjie",
+  "description": "Tools for developing with Microservice on Node.js.",
+  "homepage": "https://github.com/niklaus0823/matrixes-cli#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/niklaus0823/matrixes-cli.git"
   },
-  "bugs": {
-    "url": "https://github.com/niklaus0823/matrixes-cli/issues"
-  },
-  "homepage": "https://github.com/niklaus0823/matrixes-cli#readme",
-  "keywords": [
-    "protobuf",
-    "protoc",
-    "typescript",
-    "ts",
-    "grpc",
-    "service",
-    "proto3",
-    "microservice"
-  ],
-  "license": "MIT",
-  "author": "fengjie",
+  "bugs": "https://github.com/niklaus0823/matrixes-cli/issues",
   "engines": {
     "node": ">=8"
   },
+  "main": "index.js",
+  "bin": {
+    "matrixes-protoc": "bin/protoc.js",
+    "matrixes-protoc-gen-ts": "bin/protoc-gen-ts.js"
+  },
+  "scripts": {
+    "install": "./node_modules/.bin/node-pre-gyp install"
+  },
+  "bundledDependencies": [
+    "node-pre-gyp"
+  ],
+  "binary": {
+    "module_name": "grpc_tools",
+    "host": "https://storage.googleapis.com/",
+    "remote_path": "grpc-precompiled-binaries/node/grpc-tools/v1.6.6",
+    "package_name": "{platform}-{arch}.tar.gz",
+    "module_path": "bin"
+  },
+  "license": "MIT",
   "dependencies": {
     "@types/google-protobuf": "^3.2.7",
     "google-protobuf": "^3.5.0",
     "grpc": "^1.9.0",
+    "node-pre-gyp": "^0.6.39",
     "protobufjs": "^6.8.4",
     "recursive-readdir": "^2.2.1"
   },

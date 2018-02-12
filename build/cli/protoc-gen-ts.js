@@ -1,11 +1,6 @@
+#!/usr/bin/env node
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * This is the ProtoC compiler plugin.
- *
- * It only accepts stdin/stdout output according to the protocol
- * specified in [plugin.proto](https://github.com/google/protobuf/blob/master/src/google/protobuf/compiler/plugin.proto).
- */
 const plugin_pb_1 = require("google-protobuf/google/protobuf/compiler/plugin_pb");
 const ExportMap_1 = require("./lib/ExportMap");
 const Utility_1 = require("./lib/Utility");
@@ -33,7 +28,7 @@ Utility_1.Utility.withAllStdIn((inputBuff) => {
             codeGenResponse.addFile(thisFile);
             if (generateServices) {
                 const fileDescriptorOutput = FileDescriptorTSServices_1.FileDescriptorTSServices.print(fileNameToDescriptor[fileName], exportMap);
-                if (fileDescriptorOutput != '') {
+                if (fileDescriptorOutput !== '') {
                     const thisServiceFileName = Utility_1.Utility.svcFilePathFromProtoWithoutExtension(fileName);
                     const thisServiceFile = new plugin_pb_1.CodeGeneratorResponse.File();
                     thisServiceFile.setName(thisServiceFileName + '.d.ts');
