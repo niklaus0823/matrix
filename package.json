@@ -1,6 +1,6 @@
 {
   "name": "matrixes-cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "fengjie",
   "description": "Tools for developing with Microservice on Node.js.",
   "homepage": "https://github.com/niklaus0823/matrixes-cli#readme",
@@ -14,6 +14,7 @@
   },
   "main": "index.js",
   "bin": {
+    "protoc-gen-ts": "bin/protoc-gen-ts",
     "matrixes-protoc": "bin/protoc.js",
     "matrixes-protoc-gen-ts": "bin/protoc-gen-ts.js"
   },
