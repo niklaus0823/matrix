@@ -1,6 +1,6 @@
 {
   "name": "matrixes-cli",
-  "version": "0.1.2",
+  "version": "0.1.5",
   "author": "fengjie",
   "description": "Tools for developing with Microservice on Node.js.",
   "homepage": "https://github.com/niklaus0823/matrixes-cli#readme",
@@ -14,33 +14,24 @@
   },
   "main": "index.js",
   "bin": {
-    "protoc-gen-ts": "bin/protoc-gen-ts",
-    "matrixes-protoc": "bin/protoc.js",
-    "matrixes-protoc-gen-ts": "bin/protoc-gen-ts.js"
-  },
-  "scripts": {
-    "install": "./node_modules/.bin/node-pre-gyp install"
-  },
-  "bundledDependencies": [
-    "node-pre-gyp"
-  ],
-  "binary": {
-    "module_name": "grpc_tools",
-    "host": "https://storage.googleapis.com/",
-    "remote_path": "grpc-precompiled-binaries/node/grpc-tools/v1.6.6",
-    "package_name": "{platform}-{arch}.tar.gz",
-    "module_path": "bin"
+    "matrix": "./build/cli/matrix.js"
   },
   "license": "MIT",
   "dependencies": {
-    "@types/google-protobuf": "^3.2.7",
+    "commander": "^2.14.1",
     "google-protobuf": "^3.5.0",
-    "grpc": "^1.9.0",
+    "grpc": "^1.9.1",
+    "is-generator-function": "^1.0.7",
+    "koa": "^2.5.0",
+    "koa-convert": "^1.2.0",
     "node-pre-gyp": "^0.6.39",
     "protobufjs": "^6.8.4",
     "recursive-readdir": "^2.2.1"
   },
   "devDependencies": {
+    "@types/google-protobuf": "^3.2.7",
+    "@types/joi": "^13.0.5",
+    "@types/koa": "^2.0.44",
     "@types/node": "^9.4.1"
   }
 }
