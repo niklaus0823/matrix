@@ -1,6 +1,6 @@
 {
   "name": "matrixes-cli",
-  "version": "0.1.5",
+  "version": "0.2.1-rm",
   "author": "fengjie",
   "description": "Tools for developing with Microservice on Node.js.",
   "homepage": "https://github.com/niklaus0823/matrixes-cli#readme",
@@ -12,26 +12,16 @@
   "engines": {
     "node": ">=8"
   },
-  "main": "index.js",
+  "main": "./build/index.js",
   "bin": {
-    "matrix": "./build/cli/matrix.js"
+    "matrix": "./build/index.js"
   },
   "license": "MIT",
   "dependencies": {
     "commander": "^2.14.1",
-    "google-protobuf": "^3.5.0",
-    "grpc": "^1.9.1",
-    "is-generator-function": "^1.0.7",
-    "koa": "^2.5.0",
-    "koa-convert": "^1.2.0",
-    "node-pre-gyp": "^0.6.39",
-    "protobufjs": "^6.8.4",
     "recursive-readdir": "^2.2.1"
   },
   "devDependencies": {
-    "@types/google-protobuf": "^3.2.7",
-    "@types/joi": "^13.0.5",
-    "@types/koa": "^2.0.44",
     "@types/node": "^9.4.1"
   }
 }

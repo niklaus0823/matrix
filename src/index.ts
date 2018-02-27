@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const program = require("commander");
+import * as program from 'commander';
+
 const pkg = require('../package.json');
+
 program.version(pkg.version)
     .command('proto [options]', 'generate node.js source codes from proto files')
     .parse(process.argv);
