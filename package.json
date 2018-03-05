@@ -12,16 +12,20 @@
   "engines": {
     "node": ">=8"
   },
-  "main": "./build/index.js",
+  "main": "./build/matrix.js",
   "bin": {
-    "matrix": "./build/index.js"
+    "matrix": "./build/matrix.js"
   },
   "license": "MIT",
   "dependencies": {
     "commander": "^2.14.1",
-    "recursive-readdir": "^2.2.1"
+    "debug": "^3.1.0",
+    "fs-extra": "^5.0.0",
+    "iterable-readfiles": "^1.0.5",
+    "shelljs": "^0.8.1"
   },
   "devDependencies": {
+    "@types/fs-extra": "^5.0.1",
     "@types/node": "^9.4.1"
   }
 }
