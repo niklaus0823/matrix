@@ -121,10 +121,10 @@ class CLI {
                 }
                 if (IS_OUTPUT_SWAGGER) {
                     let goPath = LibChildProcess.execSync('go env GOPATH').toString().replace(/\n$/, '').replace(/\r$/, '');
-                    let plugin = LibPath.join(goPath, 'bin', `protoc-gen-swagger${process.platform === 'win32' ? '.exe' : ''}`);
+                    let pluginPath = LibPath.join(goPath, 'bin', `protoc-gen-swagger${process.platform === 'win32' ? '.exe' : ''}`);
                     let cmd = '';
                     cmd += 'protoc-gen';
-                    cmd += ` --plugin=protoc-gen-swagger=${plugin}`;
+                    cmd += ` --plugin=protoc-gen-swagger=${pluginPath}`;
                     cmd += ` --swagger_out=:${outputDir}`;
                     cmd += ` --proto_path ${PROTO_DIR}`;
                     cmd += imports;
@@ -135,7 +135,6 @@ class CLI {
                     throw new Error('Choose one of --javascript | --typescript to output');
                 }
                 cmds.forEach((cmd) => {
-                    console.log(cmd);
                     if (LibShell.exec(cmd).code !== 0) {
                         throw new Error(`err in generating proto: ${protoFile.fileName}`);
                     }
