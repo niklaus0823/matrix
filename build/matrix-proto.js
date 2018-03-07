@@ -14,9 +14,10 @@ const LibPath = require("path");
 const LibShell = require("shelljs");
 const LibChildProcess = require("child_process");
 const Utility = require("./lib/Utility");
-const ProtoFile_1 = require("./lib/ProtoFile");
+const ProtoFile = require("./lib/ProtoFile");
 const debug = require('debug')('matrix:proto');
 const pkg = require('../package.json');
+// node ./build/matrix.js proto -p ./examples/proto -o ./examples/output -i ./examples/proto_modules -e ./examples/proto_modules/google -t -j -a
 program.version(pkg.version)
     .option('-p, --proto <dir>', 'directory of source proto files')
     .option('-o, --output <dir>', 'directory to output codes')
@@ -77,10 +78,10 @@ class CLI {
     }
     _loadProtoFile() {
         return __awaiter(this, void 0, void 0, function* () {
-            this._protoFiles = this._protoFiles.concat(yield ProtoFile_1.readProtoFiles(PROTO_DIR, OUTPUT_DIR, EXCLUDES));
+            this._protoFiles = this._protoFiles.concat(yield ProtoFile.readProtoFiles(PROTO_DIR, OUTPUT_DIR, EXCLUDES));
             if (OUTPUT_ALL_IMPORT && IMPORTS.length > 0) {
                 for (let i = 0; i < IMPORTS.length; i++) {
-                    this._protoFiles = this._protoFiles.concat(yield ProtoFile_1.readProtoFiles(Utility.getAbsolutePath(IMPORTS[i]), OUTPUT_DIR, EXCLUDES));
+                    this._protoFiles = this._protoFiles.concat(yield ProtoFile.readProtoFiles(Utility.getAbsolutePath(IMPORTS[i]), OUTPUT_DIR, EXCLUDES));
                 }
             }
         });
@@ -107,7 +108,7 @@ class CLI {
                     cmd += ` --grpc_out=${outputDir}`;
                     cmd += ` --proto_path ${PROTO_DIR}`;
                     cmd += imports;
-                    cmd += ` ${ProtoFile_1.genFullProtoFilePath(protoFile)}`;
+                    cmd += ` ${ProtoFile.genFullProtoFilePath(protoFile)}`;
                     cmds.push(cmd);
                 }
                 if (IS_OUTPUT_DTS) {
@@ -116,7 +117,7 @@ class CLI {
                     cmd += ` --ts_out=service=true:${outputDir}`;
                     cmd += ` --proto_path ${PROTO_DIR}`;
                     cmd += imports;
-                    cmd += ` ${ProtoFile_1.genFullProtoFilePath(protoFile)}`;
+                    cmd += ` ${ProtoFile.genFullProtoFilePath(protoFile)}`;
                     cmds.push(cmd);
                 }
                 if (IS_OUTPUT_SWAGGER) {
@@ -128,7 +129,7 @@ class CLI {
                     cmd += ` --swagger_out=:${outputDir}`;
                     cmd += ` --proto_path ${PROTO_DIR}`;
                     cmd += imports;
-                    cmd += ` ${ProtoFile_1.genFullProtoFilePath(protoFile)}`;
+                    cmd += ` ${ProtoFile.genFullProtoFilePath(protoFile)}`;
                     cmds.push(cmd);
                 }
                 if (cmds.length === 0) {

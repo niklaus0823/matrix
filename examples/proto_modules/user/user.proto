@@ -11,6 +11,6 @@ message GetUserRequest {
     int64 id = 1;
 }
 
-service BookService {
+service UserService {
     rpc GetUser (GetUserRequest) returns (User) {}
 }

@@ -4,6 +4,7 @@
 var grpc = require('grpc');
 var book_book_pb = require('../book/book_pb.js');
 var google_api_annotations_pb = require('../google/api/annotations_pb.js');
+var user_user_pb = require('../user/user_pb.js');
 
 function serialize_com_book_Book(arg) {
   if (!(arg instanceof book_book_pb.Book)) {
@@ -36,6 +37,28 @@ function serialize_com_book_GetBookViaAuthorRequest(arg) {
 
 function deserialize_com_book_GetBookViaAuthorRequest(buffer_arg) {
   return book_book_pb.GetBookViaAuthorRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_com_user_GetUserRequest(arg) {
+  if (!(arg instanceof user_user_pb.GetUserRequest)) {
+    throw new Error('Expected argument of type com.user.GetUserRequest');
+  }
+  return new Buffer(arg.serializeBinary());
+}
+
+function deserialize_com_user_GetUserRequest(buffer_arg) {
+  return user_user_pb.GetUserRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_com_user_User(arg) {
+  if (!(arg instanceof user_user_pb.User)) {
+    throw new Error('Expected argument of type com.user.User');
+  }
+  return new Buffer(arg.serializeBinary());
+}
+
+function deserialize_com_user_User(buffer_arg) {
+  return user_user_pb.User.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 
@@ -84,6 +107,17 @@ var BookServiceService = exports.BookServiceService = {
     responseSerialize: serialize_com_book_Book,
     responseDeserialize: deserialize_com_book_Book,
   },
+  getBookUser: {
+    path: '/com.book.BookService/GetBookUser',
+    requestStream: false,
+    responseStream: false,
+    requestType: user_user_pb.GetUserRequest,
+    responseType: user_user_pb.User,
+    requestSerialize: serialize_com_user_GetUserRequest,
+    requestDeserialize: deserialize_com_user_GetUserRequest,
+    responseSerialize: serialize_com_user_User,
+    responseDeserialize: deserialize_com_user_User,
+  },
 };
 
 exports.BookServiceClient = grpc.makeGenericClientConstructor(BookServiceService);
@@ -96,6 +130,17 @@ var BookApiServiceService = exports.BookApiServiceService = {
     responseType: book_book_pb.Book,
     requestSerialize: serialize_com_book_GetBookRequest,
     requestDeserialize: deserialize_com_book_GetBookRequest,
+    responseSerialize: serialize_com_book_Book,
+    responseDeserialize: deserialize_com_book_Book,
+  },
+  getBooksViaAuthorApi: {
+    path: '/com.book.BookApiService/GetBooksViaAuthorApi',
+    requestStream: false,
+    responseStream: false,
+    requestType: book_book_pb.GetBookViaAuthorRequest,
+    responseType: book_book_pb.Book,
+    requestSerialize: serialize_com_book_GetBookViaAuthorRequest,
+    requestDeserialize: deserialize_com_book_GetBookViaAuthorRequest,
     responseSerialize: serialize_com_book_Book,
     responseDeserialize: deserialize_com_book_Book,
   },

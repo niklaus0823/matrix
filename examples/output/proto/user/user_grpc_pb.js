@@ -27,9 +27,9 @@ function deserialize_com_user_User(buffer_arg) {
 }
 
 
-var BookServiceService = exports.BookServiceService = {
+var UserServiceService = exports.UserServiceService = {
   getUser: {
-    path: '/com.user.BookService/GetUser',
+    path: '/com.user.UserService/GetUser',
     requestStream: false,
     responseStream: false,
     requestType: user_user_pb.GetUserRequest,
@@ -41,4 +41,4 @@ var BookServiceService = exports.BookServiceService = {
   },
 };
 
-exports.BookServiceClient = grpc.makeGenericClientConstructor(BookServiceService);
+exports.UserServiceClient = grpc.makeGenericClientConstructor(UserServiceService);

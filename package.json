@@ -1,6 +1,6 @@
 {
   "name": "matrixes-cli",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "fengjie",
   "description": "Tools for developing with Microservice on Node.js.",
   "homepage": "https://github.com/niklaus0823/matrixes-cli#readme",
@@ -22,10 +22,12 @@
     "debug": "^3.1.0",
     "fs-extra": "^5.0.0",
     "iterable-readfiles": "^1.0.5",
+    "protobufjs": "^6.8.6",
     "shelljs": "^0.8.1"
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.1",
-    "@types/node": "^9.4.1"
+    "@types/node": "^9.4.1",
+    "@types/protobufjs": "^6.0.0"
   }
 }

@@ -16,17 +16,22 @@ const iterable_readfiles_1 = require("iterable-readfiles");
  *
  * @returns {string}
  */
-function getProjectDir() {
+exports.getProjectDir = () => {
     return process.cwd();
-}
-exports.getProjectDir = getProjectDir;
+};
+exports.ucFirst = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+};
+exports.lcFirst = (str) => {
+    return str.charAt(0).toLowerCase() + str.slice(1);
+};
 /**
  * Find absolute filepath and add '/' at dir path last string
  *
  * @returns {string}
  */
 function getAbsolutePath(relativePath) {
-    let path = LibPath.join(getProjectDir(), LibPath.normalize(relativePath));
+    let path = LibPath.join(exports.getProjectDir(), LibPath.normalize(relativePath));
     let pathStat = LibFs.statSync(path);
     if (pathStat.isDirectory() && path.substr(path.length - 1, 1) != '/') {
         path = LibPath.join(path, '/');
@@ -45,18 +50,23 @@ exports.getAbsolutePath = getAbsolutePath;
 exports.readFiles = function (dir, extname, excludes) {
     return __awaiter(this, void 0, void 0, function* () {
         let ignoreFunction = (path, stat) => {
-            let shallIgnore = (stat.isFile() && LibPath.extname(path) !== `.${extname}`);
-            if (shallIgnore || !excludes || excludes.length === 0) {
-                return shallIgnore;
-            }
-            excludes.forEach((exclude) => {
-                if (path.indexOf(LibPath.normalize(exclude)) !== -1) {
-                    shallIgnore = true;
-                }
-            });
-            return shallIgnore;
+            return exports.shallIgnore(path, excludes, (stat.isFile() && LibPath.extname(path) !== `.${extname}`));
         };
         let ignores = ['.DS_Store', '.git', '.idea', ignoreFunction];
         return iterable_readfiles_1.readfiles(dir, ignores);
     });
+};
+exports.shallIgnore = function (path, excludes, defaultValue) {
+    let shallIgnore = defaultValue || false;
+    if (shallIgnore) {
+        return shallIgnore;
+    }
+    if (excludes !== null && excludes.length > 0) {
+        excludes.forEach((exclude) => {
+            if (path.indexOf(LibPath.normalize(exclude)) !== -1) {
+                shallIgnore = true;
+            }
+        });
+    }
+    return shallIgnore;
 };

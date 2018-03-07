@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "google/api/annotations.proto";
+import "user/user.proto";
 
 package com.book;
 
@@ -23,12 +24,19 @@ service BookService {
     rpc GetBooksViaAuthor (GetBookViaAuthorRequest) returns (stream Book) {}
     rpc GetGreatestBook (stream GetBookRequest) returns (Book) {}
     rpc GetBooks (stream GetBookRequest) returns (stream Book) {}
+    rpc GetBookUser (user.GetUserRequest) returns (user.User) {}
 }
 
 service BookApiService {
     rpc GetBookApi (GetBookRequest) returns (Book) {
         option (google.api.http) = {
             post: "/v1/getBook"
+            body: "*"
+        };
+    }
+    rpc GetBooksViaAuthorApi (GetBookViaAuthorRequest) returns (Book) {
+        option (google.api.http) = {
+            post: "/v1/getBooksViaAuthor"
             body: "*"
         };
     }

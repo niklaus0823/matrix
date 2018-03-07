@@ -8,15 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Utility = require("./Utility");
 const LibPath = require("path");
+const Utility = require("./Utility");
 /**
  * 读取 protoDir 文件夹内的 proto 文件名生成 ProtoFile 结构体。
  *
  * @param {string} protoDir
  * @param {string} outputDir
  * @param {Array<string>} excludes
- * @returns {Promise<Array<ProtoFile>>}
+ * @returns {Promise<Array<ProtoFileType>>}
  */
 exports.readProtoFiles = (protoDir, outputDir, excludes) => __awaiter(this, void 0, void 0, function* () {
     let files = yield Utility.readFiles(protoDir, 'proto', excludes);
@@ -35,14 +35,24 @@ exports.readProtoFiles = (protoDir, outputDir, excludes) => __awaiter(this, void
         protoFile.relativePath = LibPath.dirname(file);
         protoFile.fileName = LibPath.basename(file);
         protoFile.filePath = file;
-        protoFile.pbNamespace = exports.filePathToPbNamespace(protoFile.filePath);
-        protoFile.pbSvcNamespace = exports.filePathToPbServiceNamespace(protoFile.filePath);
+        protoFile.pbNamespace = exports.filePathToPbNamespace(protoFile.fileName);
+        protoFile.pbSvcNamespace = exports.filePathToPbServiceNamespace(protoFile.fileName);
         return protoFile;
     }).filter((value) => {
         return value !== undefined;
     });
     return Promise.resolve(protoFiles);
 });
+/**
+ * dummy/your.proto => ../
+ * dummy/and/dummy/your.proto => ../../../
+ * @param {string} filePath
+ * @returns {string}
+ */
+exports.getPathToRoot = (filePath) => {
+    const depth = filePath.replace(/\\/g, '/').split('/').length;
+    return depth === 1 ? './' : new Array(depth).join('../');
+};
 /**
  * dummy/your.proto => dummy_your_pb
  * @param {string} filePath
@@ -61,9 +71,40 @@ exports.filePathToPbServiceNamespace = (filePath) => {
 };
 /**
  * Generate origin protobuf definition (e.g *.proto) full file path.
- * @param {ProtoFile} protoFile
+ * @param {ProtoFileType} protoFile
  * @returns {string}
  */
 exports.genFullProtoFilePath = (protoFile) => {
     return LibPath.join(protoFile.protoPath, protoFile.relativePath, protoFile.fileName);
+};
+/**
+ * Generate full service stub code output path.
+ * @param {ProtoFileType} protoFile
+ * @param {Service} service
+ * @param {Method} method
+ * @returns {string}
+ */
+exports.genFullOutputServicePath = (protoFile, service, method) => {
+    return LibPath.join(protoFile.outputPath, 'services', protoFile.relativePath, protoFile.pbSvcNamespace, service.name, Utility.lcFirst(method.name) + '.ts');
+};
+/**
+ * Generate message proto js file (e.g *_pb.js) import path.
+ * Source code path is generated with {@link genFullOutputServicePath},
+ * message proto js import path is relative to it.
+ * @param {ProtoFileType} protoFile
+ * @param {string} filePath
+ * @param {string} dirName
+ * @returns {string}
+ */
+exports.genProtoImportPath = (protoFile, filePath, dirName = 'services') => {
+    return LibPath.join(exports.getPathToRoot(filePath.substr(filePath.indexOf(dirName))), 'proto', protoFile.relativePath, protoFile.pbNamespace).replace(/\\/g, '/');
+};
+/**
+ * Generate service proto js file (e.g *_grpc_pb.js) import path.
+ * Source code is "register.ts", service proto js import path is relative to it.
+ * @param {ProtoFileType} protoFile
+ * @returns {string}
+ */
+exports.genProtoServiceImportPath = (protoFile) => {
+    return LibPath.join('..', 'proto', protoFile.relativePath, protoFile.pbSvcNamespace).replace(/\\/g, '/');
 };

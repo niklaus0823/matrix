@@ -4,11 +4,12 @@ import * as LibPath from 'path';
 import * as LibShell from 'shelljs';
 import * as LibChildProcess from 'child_process';
 import * as Utility from './lib/Utility';
-import {ProtoFile, readProtoFiles, genFullProtoFilePath} from './lib/ProtoFile';
+import * as ProtoFile from './lib/ProtoFile';
 
 const debug = require('debug')('matrix:proto');
 const pkg = require('../package.json');
 
+// node ./build/matrix.js proto -p ./examples/proto -o ./examples/output -i ./examples/proto_modules -e ./examples/proto_modules/google -t -j -a
 program.version(pkg.version)
     .option('-p, --proto <dir>', 'directory of source proto files')
     .option('-o, --output <dir>', 'directory to output codes')
@@ -31,7 +32,7 @@ const OUTPUT_ALL_IMPORT = (program as any).all !== undefined;
 
 class CLI {
 
-    private _protoFiles: Array<ProtoFile> = [];
+    private _protoFiles: Array<ProtoFile.ProtoFileType> = [];
 
     static instance() {
         return new CLI();
@@ -76,10 +77,10 @@ class CLI {
     }
 
     private async _loadProtoFile() {
-        this._protoFiles = this._protoFiles.concat(await readProtoFiles(PROTO_DIR, OUTPUT_DIR, EXCLUDES));
+        this._protoFiles = this._protoFiles.concat(await ProtoFile.readProtoFiles(PROTO_DIR, OUTPUT_DIR, EXCLUDES));
         if (OUTPUT_ALL_IMPORT && IMPORTS.length > 0) {
             for (let i = 0; i < IMPORTS.length; i++) {
-                this._protoFiles = this._protoFiles.concat(await readProtoFiles(Utility.getAbsolutePath(IMPORTS[i]), OUTPUT_DIR, EXCLUDES));
+                this._protoFiles = this._protoFiles.concat(await ProtoFile.readProtoFiles(Utility.getAbsolutePath(IMPORTS[i]), OUTPUT_DIR, EXCLUDES));
             }
         }
     }
@@ -92,7 +93,7 @@ class CLI {
         const outputDir = LibPath.join(OUTPUT_DIR, 'proto');
         await LibFs.mkdirs(outputDir);
 
-        this._protoFiles.forEach((protoFile: ProtoFile) => {
+        this._protoFiles.forEach((protoFile: ProtoFile.ProtoFileType) => {
             debug(`Generate proto: ${protoFile.fileName}`);
 
             // build import params
@@ -109,7 +110,7 @@ class CLI {
                 cmd += ` --grpc_out=${outputDir}`;
                 cmd += ` --proto_path ${PROTO_DIR}`;
                 cmd += imports;
-                cmd += ` ${genFullProtoFilePath(protoFile)}`;
+                cmd += ` ${ProtoFile.genFullProtoFilePath(protoFile)}`;
                 cmds.push(cmd);
             }
 
@@ -119,7 +120,7 @@ class CLI {
                 cmd += ` --ts_out=service=true:${outputDir}`;
                 cmd += ` --proto_path ${PROTO_DIR}`;
                 cmd += imports;
-                cmd += ` ${genFullProtoFilePath(protoFile)}`;
+                cmd += ` ${ProtoFile.genFullProtoFilePath(protoFile)}`;
                 cmds.push(cmd);
             }
 
@@ -132,7 +133,7 @@ class CLI {
                 cmd += ` --swagger_out=:${outputDir}`;
                 cmd += ` --proto_path ${PROTO_DIR}`;
                 cmd += imports;
-                cmd += ` ${genFullProtoFilePath(protoFile)}`;
+                cmd += ` ${ProtoFile.genFullProtoFilePath(protoFile)}`;
                 cmds.push(cmd);
             }
 

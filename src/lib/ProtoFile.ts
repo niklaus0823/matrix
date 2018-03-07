@@ -1,5 +1,5 @@
-import * as Utility from './Utility';
 import * as LibPath from 'path';
+import * as Utility from './Utility';
 
 /**
  * eg:
@@ -20,7 +20,7 @@ import * as LibPath from 'path';
  * protoFile.pbNamespace = book_pb
  * protoFile.pbSvcNamespace = book_grpc_pb
  */
-export interface ProtoFile {
+export interface ProtoFileType {
     fileName: string;
     filePath: string;
     protoPath: string;
@@ -30,15 +30,23 @@ export interface ProtoFile {
     pbSvcNamespace: string;
 }
 
+export interface ProtoServices {
+    protoFile: ProtoFileType;
+    protoServiceImportPath: string;
+    protoService: {
+        [protoServiceName: string]: Array<string>;
+    };
+}
+
 /**
  * 读取 protoDir 文件夹内的 proto 文件名生成 ProtoFile 结构体。
  *
  * @param {string} protoDir
  * @param {string} outputDir
  * @param {Array<string>} excludes
- * @returns {Promise<Array<ProtoFile>>}
+ * @returns {Promise<Array<ProtoFileType>>}
  */
-export const readProtoFiles = async (protoDir: string, outputDir: string, excludes?: Array<string>): Promise<Array<ProtoFile>> => {
+export const readProtoFiles = async (protoDir: string, outputDir: string, excludes?: Array<string>): Promise<Array<ProtoFileType>> => {
     let files = await Utility.readFiles(protoDir, 'proto', excludes);
     let protoFiles = files.map((file: string) => {
         // 实际上 readFiles 已经进行了前置过滤，这里再做一次过滤。
@@ -51,20 +59,31 @@ export const readProtoFiles = async (protoDir: string, outputDir: string, exclud
             file = file.substr(1);
         }
 
-        let protoFile = {} as ProtoFile;
+        let protoFile = {} as ProtoFileType;
         protoFile.protoPath = protoDir;
         protoFile.outputPath = outputDir;
         protoFile.relativePath = LibPath.dirname(file);
         protoFile.fileName = LibPath.basename(file);
         protoFile.filePath = file;
-        protoFile.pbNamespace = filePathToPbNamespace(protoFile.filePath);
-        protoFile.pbSvcNamespace = filePathToPbServiceNamespace(protoFile.filePath);
+        protoFile.pbNamespace = filePathToPbNamespace(protoFile.fileName);
+        protoFile.pbSvcNamespace = filePathToPbServiceNamespace(protoFile.fileName);
         return protoFile;
-    }).filter((value: undefined | ProtoFile) => {
+    }).filter((value: undefined | ProtoFileType) => {
         return value !== undefined;
     });
 
     return Promise.resolve(protoFiles);
+};
+
+/**
+ * dummy/your.proto => ../
+ * dummy/and/dummy/your.proto => ../../../
+ * @param {string} filePath
+ * @returns {string}
+ */
+export const getPathToRoot = (filePath: string) => {
+    const depth = filePath.replace(/\\/g, '/').split('/').length;
+    return depth === 1 ? './' : new Array(depth).join('../');
 };
 
 /**
@@ -87,9 +106,63 @@ export const filePathToPbServiceNamespace = (filePath: string): string => {
 
 /**
  * Generate origin protobuf definition (e.g *.proto) full file path.
- * @param {ProtoFile} protoFile
+ * @param {ProtoFileType} protoFile
  * @returns {string}
  */
-export const genFullProtoFilePath = (protoFile: ProtoFile): string => {
-    return LibPath.join(protoFile.protoPath, protoFile.relativePath, protoFile.fileName);
+export const genFullProtoFilePath = (protoFile: ProtoFileType): string => {
+    return LibPath.join(
+        protoFile.protoPath,
+        protoFile.relativePath,
+        protoFile.fileName
+    );
+};
+/**
+ * Generate full service stub code output path.
+ * @param {ProtoFileType} protoFile
+ * @param {Service} service
+ * @param {Method} method
+ * @returns {string}
+ */
+export const genFullOutputServicePath = (protoFile: ProtoFileType, service: protobuf.Service, method: protobuf.Method) => {
+    return LibPath.join(
+        protoFile.outputPath,
+        'services',
+        protoFile.relativePath,
+        protoFile.pbSvcNamespace,
+        service.name,
+        Utility.lcFirst(method.name) + '.ts'
+    );
+};
+
+/**
+ * Generate message proto js file (e.g *_pb.js) import path.
+ * Source code path is generated with {@link genFullOutputServicePath},
+ * message proto js import path is relative to it.
+ * @param {ProtoFileType} protoFile
+ * @param {string} filePath
+ * @param {string} dirName
+ * @returns {string}
+ */
+export const genProtoImportPath = (protoFile: ProtoFileType, filePath: string, dirName: string = 'services'): string => {
+    return LibPath.join(
+        getPathToRoot(filePath.substr(filePath.indexOf(dirName))),
+        'proto',
+        protoFile.relativePath,
+        protoFile.pbNamespace
+    ).replace(/\\/g, '/');
+};
+
+/**
+ * Generate service proto js file (e.g *_grpc_pb.js) import path.
+ * Source code is "register.ts", service proto js import path is relative to it.
+ * @param {ProtoFileType} protoFile
+ * @returns {string}
+ */
+export const genProtoServiceImportPath = (protoFile: ProtoFileType): string => {
+    return LibPath.join(
+        '..',
+        'proto',
+        protoFile.relativePath,
+        protoFile.pbSvcNamespace
+    ).replace(/\\/g, '/');
 };

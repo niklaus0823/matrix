@@ -7,9 +7,17 @@ import {readfiles, IgnoreType, IgnoreFunction} from 'iterable-readfiles';
  *
  * @returns {string}
  */
-export function getProjectDir(): string {
+export const getProjectDir = (): string => {
     return process.cwd();
-}
+};
+
+export const ucFirst = (str: string): string => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+export const lcFirst = (str: string): string => {
+    return str.charAt(0).toLowerCase() + str.slice(1);
+};
 
 /**
  * Find absolute filepath and add '/' at dir path last string
@@ -35,17 +43,24 @@ export function getAbsolutePath(relativePath: string): string {
  */
 export const readFiles = async function (dir: string, extname: string, excludes?: Array<string>): Promise<Array<string>> {
     let ignoreFunction: IgnoreFunction = (path: string, stat: LibFs.Stats): boolean => {
-        let shallIgnore = (stat.isFile() && LibPath.extname(path) !== `.${extname}`);
-        if (shallIgnore || !excludes || excludes.length === 0) {
-            return shallIgnore;
-        }
+        return shallIgnore(path, excludes, (stat.isFile() && LibPath.extname(path) !== `.${extname}`));
+    };
+    let ignores: Array<IgnoreType> = ['.DS_Store', '.git', '.idea', ignoreFunction];
+    return readfiles(dir, ignores);
+};
+
+export const shallIgnore = function (path: string, excludes?: Array<string>, defaultValue?: boolean): boolean {
+    let shallIgnore = defaultValue || false;
+    if (shallIgnore) {
+        return shallIgnore;
+    }
+
+    if (excludes !== null && excludes.length > 0) {
         excludes.forEach((exclude: string) => {
             if (path.indexOf(LibPath.normalize(exclude)) !== -1) {
                 shallIgnore = true;
             }
         });
-        return shallIgnore;
-    };
-    let ignores: Array<IgnoreType> = ['.DS_Store', '.git', '.idea', ignoreFunction];
-    return readfiles(dir, ignores);
+    }
+    return shallIgnore;
 };

@@ -14,7 +14,8 @@ $ npm install protoc-gen-grpc -g
 $ npm install matrixes-cli -g
 ```
 
-## Command: Proto
+## Command
+### Command: Proto
 Generate:
 
 * NodeJs source codes
@@ -40,6 +41,23 @@ sasdn proto [options]
     -a, --all              also parse & output all proto files in import path?
 ```
 
+### Command: Service
+Generate rpc server service stubs from proto files.
+
+```
+sasdn service [options]
+
+  Options:
+
+    -h, --help              output usage information
+    -V, --version           output the version number
+    -p, --proto <dir>       directory of proto files
+    -o, --output <dir>      directory to output service codes
+    -i, --import <items>    third party proto import path: e.g path1,path2,path3
+    -e, --exclude <items>   files or paths in -p shall be excluded: e.g file1,path1,path2,file2
+```
+
+## Simple
 ### Simple：Generate js codes
 ```bash
 matrix proto \
@@ -80,4 +98,13 @@ matrix proto \
 --exclude ./examples/proto_modules/google \
 --swagger
 --all
+```
+
+### Simple：Generate service codes
+```bash
+matrix service \
+--proto ./examples/proto \
+--output ./examples/output \
+--import ./examples/proto_modules \
+--exclude ./examples/proto_modules/google \
 ```

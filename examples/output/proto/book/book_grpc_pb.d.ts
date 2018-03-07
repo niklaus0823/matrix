@@ -3,12 +3,14 @@
 
 import * as grpc from 'grpc';
 import * as book_book_pb from '../book/book_pb';
+import * as user_user_pb from '../user/user_pb';
 
 interface IBookServiceService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
   getBook: IGetBook
   getBooksViaAuthor: IGetBooksViaAuthor
   getGreatestBook: IGetGreatestBook
   getBooks: IGetBooks
+  getBookUser: IGetBookUser
 }
 
 interface IGetBook {
@@ -59,6 +61,18 @@ interface IGetBooks {
   responseDeserialize: (buffer: Uint8Array) => book_book_pb.Book;
 }
 
+interface IGetBookUser {
+  path: string; // "/com.book.BookService/GetBookUser"
+  requestStream: boolean; // false
+  responseStream: boolean; // false
+  requestType: user_user_pb.GetUserRequest;
+  responseType: user_user_pb.User;
+  requestSerialize: (arg: user_user_pb.GetUserRequest) => Buffer;
+  requestDeserialize: (buffer: Uint8Array) => user_user_pb.GetUserRequest;
+  responseSerialize: (arg: user_user_pb.User) => Buffer;
+  responseDeserialize: (buffer: Uint8Array) => user_user_pb.User;
+}
+
 export interface IBookServiceClient {
   getBook(request: book_book_pb.GetBookRequest, callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientUnaryCall;
   getBook(request: book_book_pb.GetBookRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientUnaryCall;
@@ -66,6 +80,8 @@ export interface IBookServiceClient {
   getGreatestBook(callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientWritableStream<book_book_pb.Book>;
   getGreatestBook(callback: (error: Error | null, metadata: grpc.Metadata, response: book_book_pb.Book) => void): grpc.ClientWritableStream<book_book_pb.Book>;
   getBooks(metadata?: grpc.Metadata): grpc.ClientDuplexStream<book_book_pb.GetBookRequest, book_book_pb.Book>;
+  getBookUser(request: user_user_pb.GetUserRequest, callback: (error: Error | null, response: user_user_pb.User) => void): grpc.ClientUnaryCall;
+  getBookUser(request: user_user_pb.GetUserRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: user_user_pb.User) => void): grpc.ClientUnaryCall;
 }
 
 export const BookServiceService: IBookServiceService;
@@ -77,10 +93,13 @@ export class BookServiceClient extends grpc.Client implements IBookServiceClient
   public getGreatestBook(callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientWritableStream<book_book_pb.Book>;
   public getGreatestBook(callback: (error: Error | null, metadata: grpc.Metadata, response: book_book_pb.Book) => void): grpc.ClientWritableStream<book_book_pb.Book>;
   public getBooks(metadata?: grpc.Metadata): grpc.ClientDuplexStream<book_book_pb.GetBookRequest, book_book_pb.Book>;
+  public getBookUser(request: user_user_pb.GetUserRequest, callback: (error: Error | null, response: user_user_pb.User) => void): grpc.ClientUnaryCall;
+  public getBookUser(request: user_user_pb.GetUserRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: user_user_pb.User) => void): grpc.ClientUnaryCall;
 }
 
 interface IBookApiServiceService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
   getBookApi: IGetBookApi
+  getBooksViaAuthorApi: IGetBooksViaAuthorApi
 }
 
 interface IGetBookApi {
@@ -95,9 +114,23 @@ interface IGetBookApi {
   responseDeserialize: (buffer: Uint8Array) => book_book_pb.Book;
 }
 
+interface IGetBooksViaAuthorApi {
+  path: string; // "/com.book.BookApiService/GetBooksViaAuthorApi"
+  requestStream: boolean; // false
+  responseStream: boolean; // false
+  requestType: book_book_pb.GetBookViaAuthorRequest;
+  responseType: book_book_pb.Book;
+  requestSerialize: (arg: book_book_pb.GetBookViaAuthorRequest) => Buffer;
+  requestDeserialize: (buffer: Uint8Array) => book_book_pb.GetBookViaAuthorRequest;
+  responseSerialize: (arg: book_book_pb.Book) => Buffer;
+  responseDeserialize: (buffer: Uint8Array) => book_book_pb.Book;
+}
+
 export interface IBookApiServiceClient {
   getBookApi(request: book_book_pb.GetBookRequest, callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientUnaryCall;
   getBookApi(request: book_book_pb.GetBookRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientUnaryCall;
+  getBooksViaAuthorApi(request: book_book_pb.GetBookViaAuthorRequest, callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientUnaryCall;
+  getBooksViaAuthorApi(request: book_book_pb.GetBookViaAuthorRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientUnaryCall;
 }
 
 export const BookApiServiceService: IBookApiServiceService;
@@ -105,5 +138,7 @@ export class BookApiServiceClient extends grpc.Client implements IBookApiService
   constructor(address: string, credentials: grpc.ChannelCredentials, options?: object);
   public getBookApi(request: book_book_pb.GetBookRequest, callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientUnaryCall;
   public getBookApi(request: book_book_pb.GetBookRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientUnaryCall;
+  public getBooksViaAuthorApi(request: book_book_pb.GetBookViaAuthorRequest, callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientUnaryCall;
+  public getBooksViaAuthorApi(request: book_book_pb.GetBookViaAuthorRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientUnaryCall;
 }
 
