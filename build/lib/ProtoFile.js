@@ -88,6 +88,15 @@ exports.genFullOutputServicePath = (protoFile, service, method) => {
     return LibPath.join(protoFile.outputPath, 'services', protoFile.relativePath, protoFile.pbSvcNamespace, service.name, Utility.lcFirst(method.name) + '.ts');
 };
 /**
+ * Generate full service client stub code output path.
+ * @param {ProtoFileType} protoFile
+ * @param {Service} service
+ * @returns {string}
+ */
+exports.genFullOutputServiceClientPath = (protoFile, service) => {
+    return LibPath.join(protoFile.outputPath, 'clients', protoFile.relativePath, 'MS' + service.name + 'Client.ts');
+};
+/**
  * Generate message proto js file (e.g *_pb.js) import path.
  * Source code path is generated with {@link genFullOutputServicePath},
  * message proto js import path is relative to it.
@@ -103,8 +112,10 @@ exports.genProtoImportPath = (protoFile, filePath, dirName = 'services') => {
  * Generate service proto js file (e.g *_grpc_pb.js) import path.
  * Source code is "register.ts", service proto js import path is relative to it.
  * @param {ProtoFileType} protoFile
+ * @param {string} filePath
+ * @param {string} dirName
  * @returns {string}
  */
-exports.genProtoServiceImportPath = (protoFile) => {
-    return LibPath.join('..', 'proto', protoFile.relativePath, protoFile.pbSvcNamespace).replace(/\\/g, '/');
+exports.genProtoServiceImportPath = (protoFile, filePath, dirName = 'services') => {
+    return LibPath.join(exports.getPathToRoot(filePath.substr(filePath.indexOf(dirName))), 'proto', protoFile.relativePath, protoFile.pbSvcNamespace).replace(/\\/g, '/');
 };

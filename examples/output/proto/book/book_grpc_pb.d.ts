@@ -78,7 +78,7 @@ export interface IBookServiceClient {
   getBook(request: book_book_pb.GetBookRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientUnaryCall;
   getBooksViaAuthor(request: book_book_pb.GetBookViaAuthorRequest, metadata?: grpc.Metadata): grpc.ClientReadableStream<book_book_pb.Book>;
   getGreatestBook(callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientWritableStream<book_book_pb.Book>;
-  getGreatestBook(callback: (error: Error | null, metadata: grpc.Metadata, response: book_book_pb.Book) => void): grpc.ClientWritableStream<book_book_pb.Book>;
+  getGreatestBook(metadata: grpc.Metadata, callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientWritableStream<book_book_pb.Book>;
   getBooks(metadata?: grpc.Metadata): grpc.ClientDuplexStream<book_book_pb.GetBookRequest, book_book_pb.Book>;
   getBookUser(request: user_user_pb.GetUserRequest, callback: (error: Error | null, response: user_user_pb.User) => void): grpc.ClientUnaryCall;
   getBookUser(request: user_user_pb.GetUserRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: user_user_pb.User) => void): grpc.ClientUnaryCall;
@@ -91,7 +91,7 @@ export class BookServiceClient extends grpc.Client implements IBookServiceClient
   public getBook(request: book_book_pb.GetBookRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientUnaryCall;
   public getBooksViaAuthor(request: book_book_pb.GetBookViaAuthorRequest, metadata?: grpc.Metadata): grpc.ClientReadableStream<book_book_pb.Book>;
   public getGreatestBook(callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientWritableStream<book_book_pb.Book>;
-  public getGreatestBook(callback: (error: Error | null, metadata: grpc.Metadata, response: book_book_pb.Book) => void): grpc.ClientWritableStream<book_book_pb.Book>;
+  public getGreatestBook(metadata: grpc.Metadata, callback: (error: Error | null, response: book_book_pb.Book) => void): grpc.ClientWritableStream<book_book_pb.Book>;
   public getBooks(metadata?: grpc.Metadata): grpc.ClientDuplexStream<book_book_pb.GetBookRequest, book_book_pb.Book>;
   public getBookUser(request: user_user_pb.GetUserRequest, callback: (error: Error | null, response: user_user_pb.User) => void): grpc.ClientUnaryCall;
   public getBookUser(request: user_user_pb.GetUserRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: user_user_pb.User) => void): grpc.ClientUnaryCall;

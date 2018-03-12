@@ -81,17 +81,18 @@ exports.parseProtoInfo = (protoParser, protoFile, symlink = '.') => __awaiter(th
  * @param {Method} method
  * @param {string} outputPath
  * @param {ProtoInfoMap} protoImportMap
+ * @param {string} dirName
  * @returns {RpcMethodInfo}
  */
-exports.genRpcMethodInfo = (protoFile, method, outputPath, protoImportMap) => {
-    let protoImportPath = ProtoFile.genProtoImportPath(protoFile, outputPath);
+exports.genRpcMethodInfo = (protoFile, method, outputPath, protoImportMap, dirName = 'services') => {
+    let protoImportPath = ProtoFile.genProtoImportPath(protoFile, outputPath, dirName);
     let protoMsgImportPaths = {};
     let requestType = method.requestType;
     let requestTypeImportPath = protoImportPath;
     if (protoImportMap.has(requestType)) {
         let requestProtoInfo = protoImportMap.get(requestType);
         requestType = requestProtoInfo.message;
-        requestTypeImportPath = ProtoFile.genProtoImportPath(requestProtoInfo.protoFile, outputPath);
+        requestTypeImportPath = ProtoFile.genProtoImportPath(requestProtoInfo.protoFile, outputPath, dirName);
     }
     protoMsgImportPaths = exports.addIntoRpcMethodImportPathInfos(protoMsgImportPaths, requestType, requestTypeImportPath);
     let responseType = method.responseType;
@@ -99,7 +100,7 @@ exports.genRpcMethodInfo = (protoFile, method, outputPath, protoImportMap) => {
     if (protoImportMap.has(responseType)) {
         let responseProtoInfo = protoImportMap.get(responseType);
         responseType = responseProtoInfo.message;
-        responseTypeImportPath = ProtoFile.genProtoImportPath(responseProtoInfo.protoFile, outputPath);
+        responseTypeImportPath = ProtoFile.genProtoImportPath(responseProtoInfo.protoFile, outputPath, dirName);
     }
     protoMsgImportPaths = exports.addIntoRpcMethodImportPathInfos(protoMsgImportPaths, responseType, responseTypeImportPath);
     return {

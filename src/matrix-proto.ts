@@ -9,7 +9,7 @@ import * as ProtoFile from './lib/ProtoFile';
 const debug = require('debug')('matrix:proto');
 const pkg = require('../package.json');
 
-// node ./build/matrix.js proto -p ./examples/proto -o ./examples/output -i ./examples/proto_modules -e ./examples/proto_modules/google -t -j -a
+// node ./build/matrix.js proto -p ./examples/proto -o ./examples/output -i ./examples/proto_modules -e ./examples/proto_modules/google -t -j -s -a
 program.version(pkg.version)
     .option('-p, --proto <dir>', 'directory of source proto files')
     .option('-o, --output <dir>', 'directory to output codes')

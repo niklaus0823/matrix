@@ -147,10 +147,11 @@ export const parseProtoInfo = async (protoParser: protobuf.IParserResult, protoF
  * @param {Method} method
  * @param {string} outputPath
  * @param {ProtoInfoMap} protoImportMap
+ * @param {string} dirName
  * @returns {RpcMethodInfo}
  */
-export const genRpcMethodInfo = (protoFile: ProtoFile.ProtoFileType, method: protobuf.Method, outputPath: string, protoImportMap: ProtoInfoMap): RpcMethodInfo => {
-    let protoImportPath = ProtoFile.genProtoImportPath(protoFile, outputPath);
+export const genRpcMethodInfo = (protoFile: ProtoFile.ProtoFileType, method: protobuf.Method, outputPath: string, protoImportMap: ProtoInfoMap, dirName: string = 'services'): RpcMethodInfo => {
+    let protoImportPath = ProtoFile.genProtoImportPath(protoFile, outputPath, dirName);
     let protoMsgImportPaths = {} as RpcMethodImportPathInfos;
 
     let requestType = method.requestType;
@@ -158,7 +159,7 @@ export const genRpcMethodInfo = (protoFile: ProtoFile.ProtoFileType, method: pro
     if (protoImportMap.has(requestType)) {
         let requestProtoInfo: ProtoInfo = protoImportMap.get(requestType);
         requestType = requestProtoInfo.message;
-        requestTypeImportPath = ProtoFile.genProtoImportPath(requestProtoInfo.protoFile, outputPath);
+        requestTypeImportPath = ProtoFile.genProtoImportPath(requestProtoInfo.protoFile, outputPath, dirName);
     }
     protoMsgImportPaths = addIntoRpcMethodImportPathInfos(protoMsgImportPaths, requestType, requestTypeImportPath);
 
@@ -167,7 +168,7 @@ export const genRpcMethodInfo = (protoFile: ProtoFile.ProtoFileType, method: pro
     if (protoImportMap.has(responseType)) {
         let responseProtoInfo: ProtoInfo = protoImportMap.get(responseType);
         responseType = responseProtoInfo.message;
-        responseTypeImportPath = ProtoFile.genProtoImportPath(responseProtoInfo.protoFile, outputPath);
+        responseTypeImportPath = ProtoFile.genProtoImportPath(responseProtoInfo.protoFile, outputPath, dirName);
     }
     protoMsgImportPaths = addIntoRpcMethodImportPathInfos(protoMsgImportPaths, responseType, responseTypeImportPath);
 

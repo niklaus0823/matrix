@@ -14,10 +14,10 @@ const LibPath = require("path");
 const Utility = require("./lib/Utility");
 const Proto = require("./lib/Proto");
 const ProtoFile = require("./lib/ProtoFile");
-const service_1 = require("./template/service");
-const debug = require('debug')('matrix:service');
+const client_1 = require("./template/client");
+const debug = require('debug')('matrix:client');
 const pkg = require('../package.json');
-// node ./build/matrix.js service -p ./examples/proto -o ./examples/output -i ./examples/proto_modules -e ./examples/proto_modules/google,./examples/proto_modules/kafka,./examples/proto_modules/memcached
+// node ./build/matrix.js client -p ./examples/proto -o ./examples/output -i ./examples/proto_modules -e ./examples/proto_modules/google
 program.version(pkg.version)
     .option('-p, --proto <dir>', 'directory of source proto files')
     .option('-o, --output <dir>', 'directory to output codes')
@@ -84,10 +84,10 @@ class CLI {
             if (this._protoFiles.length === 0) {
                 throw new Error('no proto files found');
             }
-            // 创建 services 默认文件夹
-            let servicePath = LibPath.join(OUTPUT_DIR, 'services');
-            if (!LibFs.existsSync(servicePath)) {
-                yield LibFs.mkdir(servicePath);
+            // 创建 client 默认文件夹
+            let clientPath = LibPath.join(OUTPUT_DIR, 'clients');
+            if (!LibFs.existsSync(clientPath)) {
+                yield LibFs.mkdir(clientPath);
             }
             // 通过 protoFile 获取 proto 结构，并保存所有 proto 的 importName 以及相关信息，已被后面计算 import 相关信息
             const protos = yield Promise.all(this._protoFiles.map((protoFile) => __awaiter(this, void 0, void 0, function* () {
@@ -116,8 +116,8 @@ class CLI {
                 // generate service info via protoFile
                 let serviceInfo = {
                     protoFile: proto.protoFile,
-                    pbImportPath: ProtoFile.genProtoImportPath(proto.protoFile, OUTPUT_DIR),
-                    pbSvcImportPath: ProtoFile.genProtoServiceImportPath(proto.protoFile, OUTPUT_DIR),
+                    pbImportPath: '',
+                    pbSvcImportPath: '',
                     services: {},
                     serviceMethods: {}
                 };
@@ -136,9 +136,7 @@ class CLI {
                             return;
                         }
                         // add proto service method
-                        let method = service.methods[methodName];
-                        serviceInfo.serviceMethods[service.name][Utility.lcFirst(methodName)] = method;
-                        this._genServiceMethodCode(protoInfo, method);
+                        serviceInfo.serviceMethods[service.name][Utility.lcFirst(methodName)] = service.methods[methodName];
                     });
                 });
                 servicesInfos.push(serviceInfo);
@@ -146,39 +144,44 @@ class CLI {
             if (servicesInfos.length === 0) {
                 throw new Error('no service files need export');
             }
-            let outputPath = LibPath.join(OUTPUT_DIR, 'services', 'Register.ts');
-            LibFs.writeFileSync(outputPath, service_1.RpcServerMiddlewareRegisterTpl.print(servicesInfos));
+            servicesInfos.forEach((serviceInfo) => {
+                Object.keys(serviceInfo.services).forEach((serviceName) => {
+                    this._genServiceClientCode(serviceName, serviceInfo);
+                });
+            });
         });
     }
-    _genServiceMethodCode(protoInfo, method) {
-        debug(`Generate service method: ${protoInfo.service.name}.${method.name}`);
-        let outputPath = ProtoFile.genFullOutputServicePath(protoInfo.protoFile, protoInfo.service, method);
-        let methodInfo = Proto.genRpcMethodInfo(protoInfo.protoFile, method, outputPath, this._protoImportMap);
-        if (!method.requestStream && !method.responseStream) {
-            methodInfo.callTypeStr = 'IRpcServerUnaryCall';
-            methodInfo.callGenerics = `<${methodInfo.requestTypeStr}>`;
-            methodInfo.hasCallback = true;
-            methodInfo.hasRequest = true;
-        }
-        else if (!method.requestStream && method.responseStream) {
-            methodInfo.callTypeStr = 'IRpcServerWriteableStream';
-            methodInfo.callGenerics = `<${methodInfo.requestTypeStr}>`;
-            methodInfo.hasRequest = true;
-        }
-        else if (method.requestStream && !method.responseStream) {
-            methodInfo.callTypeStr = 'IRpcServerReadableStream';
-            methodInfo.callGenerics = `<${methodInfo.requestTypeStr}>`;
-            methodInfo.hasCallback = true;
-        }
-        else if (method.requestStream && method.responseStream) {
-            methodInfo.callTypeStr = 'IRpcServerDuplexStream';
-            methodInfo.callGenerics = `<${methodInfo.requestTypeStr}, ${methodInfo.responseTypeStr}>`;
-        }
+    _genServiceClientCode(serviceName, serviceInfo) {
+        debug(`Generate service client: ${serviceName}`);
+        let service = serviceInfo.services[serviceName];
+        let serviceMethods = serviceInfo.serviceMethods[serviceName];
+        // parse proto service method info
+        let outputPath = ProtoFile.genFullOutputServiceClientPath(serviceInfo.protoFile, service);
+        serviceInfo.pbImportPath = ProtoFile.genProtoImportPath(serviceInfo.protoFile, outputPath, 'client');
+        serviceInfo.pbSvcImportPath = ProtoFile.genProtoServiceImportPath(serviceInfo.protoFile, outputPath, 'client');
+        let methodInfos = [];
+        Object.keys(serviceMethods).forEach((methodName) => {
+            let method = serviceMethods[methodName];
+            let methodInfo = Proto.genRpcMethodInfo(serviceInfo.protoFile, method, outputPath, this._protoImportMap, 'client');
+            if (!method.requestStream && !method.responseStream) {
+                methodInfo.callTypeStr = 'IRpcServerUnaryCall';
+            }
+            else if (!method.requestStream && method.responseStream) {
+                methodInfo.callTypeStr = 'IRpcServerWriteableStream';
+            }
+            else if (method.requestStream && !method.responseStream) {
+                methodInfo.callTypeStr = 'IRpcServerCallback';
+            }
+            else if (method.requestStream && method.responseStream) {
+                methodInfo.callTypeStr = 'IRpcServerDuplexStream';
+            }
+            methodInfos.push(methodInfo);
+        });
         let outputDir = LibPath.dirname(outputPath);
         if (!LibFs.existsSync(outputDir)) {
             LibFs.mkdirsSync(outputDir);
         }
-        LibFs.writeFileSync(outputPath, service_1.RpcServerMiddlewareTpl.print(methodInfo));
+        LibFs.writeFileSync(outputPath, client_1.RpcClientTpl.print(serviceName, serviceInfo, methodInfos));
     }
 }
 CLI.instance().run().catch((err) => {

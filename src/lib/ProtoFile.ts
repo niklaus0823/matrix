@@ -32,9 +32,13 @@ export interface ProtoFileType {
 
 export interface ProtoServices {
     protoFile: ProtoFileType;
-    protoServiceImportPath: string;
-    protoService: {
-        [protoServiceName: string]: Array<string>;
+    pbImportPath: string;
+    pbSvcImportPath: string;
+    services: {
+        [protoServiceName: string]: protobuf.Service;
+    };
+    serviceMethods: {
+        [protoServiceName: string]: {[serviceMethod: string]: protobuf.Method};
     };
 }
 
@@ -116,6 +120,7 @@ export const genFullProtoFilePath = (protoFile: ProtoFileType): string => {
         protoFile.fileName
     );
 };
+
 /**
  * Generate full service stub code output path.
  * @param {ProtoFileType} protoFile
@@ -131,6 +136,21 @@ export const genFullOutputServicePath = (protoFile: ProtoFileType, service: prot
         protoFile.pbSvcNamespace,
         service.name,
         Utility.lcFirst(method.name) + '.ts'
+    );
+};
+
+/**
+ * Generate full service client stub code output path.
+ * @param {ProtoFileType} protoFile
+ * @param {Service} service
+ * @returns {string}
+ */
+export const genFullOutputServiceClientPath = (protoFile: ProtoFileType, service: protobuf.Service) => {
+    return LibPath.join(
+        protoFile.outputPath,
+        'clients',
+        protoFile.relativePath,
+        'MS' + service.name + 'Client.ts'
     );
 };
 
@@ -156,11 +176,13 @@ export const genProtoImportPath = (protoFile: ProtoFileType, filePath: string, d
  * Generate service proto js file (e.g *_grpc_pb.js) import path.
  * Source code is "register.ts", service proto js import path is relative to it.
  * @param {ProtoFileType} protoFile
+ * @param {string} filePath
+ * @param {string} dirName
  * @returns {string}
  */
-export const genProtoServiceImportPath = (protoFile: ProtoFileType): string => {
+export const genProtoServiceImportPath = (protoFile: ProtoFileType, filePath: string, dirName: string = 'services'): string => {
     return LibPath.join(
-        '..',
+        getPathToRoot(filePath.substr(filePath.indexOf(dirName))),
         'proto',
         protoFile.relativePath,
         protoFile.pbSvcNamespace
