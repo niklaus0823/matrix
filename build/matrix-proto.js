@@ -133,7 +133,7 @@ class CLI {
                     cmds.push(cmd);
                 }
                 if (cmds.length === 0) {
-                    throw new Error('Choose one of --javascript | --typescript to output');
+                    throw new Error('Choose one of --javascript | --typescript | --swagger to output');
                 }
                 cmds.forEach((cmd) => {
                     if (LibShell.exec(cmd).code !== 0) {

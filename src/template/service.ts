@@ -29,7 +29,7 @@ export namespace RpcServerMiddlewareTpl {
     };
 }
 
-export namespace RpcServerMiddlewareRegisterTpl {
+export namespace RpcServerRegisterTpl {
 
     export const print = (serviceInfos: Array<ProtoFile.ProtoServices>): string => {
         const printer = new Printer(0);

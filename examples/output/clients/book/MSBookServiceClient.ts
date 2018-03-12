@@ -47,7 +47,7 @@ export default class MSBookServiceClient {
         });
     }
 
-    // Send IRpcServerCallback
+    // Send IRpcServerReadableStream
     public getGreatestBook(requests: Array<GetBookRequest>, metadata?: grpc.Metadata): Promise<Book> {
         return new Promise((resolve, reject) => {
             let call = this.client.getGreatestBook(metadata, (err: Error, res: Book) => {

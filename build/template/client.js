@@ -3,12 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Printer_1 = require("../lib/Printer");
 var RpcClientTpl;
 (function (RpcClientTpl) {
-    RpcClientTpl.print = (serviceName, serviceInfo, methodInfos) => {
+    RpcClientTpl.print = (service, methodInfos, pbSvcImportPath) => {
         const printer = new Printer_1.Printer(0);
         printer.printLn(`import * as grpc from 'grpc';`);
         printer.printLn(`import {Duplex, Readable, Writable} from 'stream';`);
         printer.printLn(`import {GatewayContext, RpcContext} from 'matrixes-lib';`);
-        printer.printLn(`import {${serviceName}Client} from '${serviceInfo.pbSvcImportPath}';`);
+        printer.printLn(`import {${service.name}Client} from '${pbSvcImportPath}';`);
         printer.printEmptyLn();
         let importMethodNames = {};
         Object.keys(methodInfos).forEach((methodName) => {
@@ -28,12 +28,12 @@ var RpcClientTpl;
             printer.printLn(`import {${importMethodNames[importPath].join(', ')}} from '${importPath}';`);
         });
         printer.printEmptyLn();
-        printer.printLn(`export default class MS${serviceName}Client {`);
+        printer.printLn(`export default class MS${service.name}Client {`);
         printer.printEmptyLn();
-        printer.printLn(`public client: ${serviceName}Client;`, 1);
+        printer.printLn(`public client: ${service.name}Client;`, 1);
         printer.printEmptyLn();
         printer.printLn(`constructor(address: string, ctx?: GatewayContext | RpcContext) {`, 1);
-        printer.printLn(`this.client = new ${serviceName}Client(address, grpc.credentials.createInsecure());`, 2);
+        printer.printLn(`this.client = new ${service.name}Client(address, grpc.credentials.createInsecure());`, 2);
         printer.printLn(`}`, 1);
         methodInfos.forEach((methodInfo) => {
             printer.printEmptyLn();
@@ -72,7 +72,7 @@ var RpcClientTpl;
                     printer.printLn(`});`, 2);
                     printer.printLn(`}`, 1);
                     break;
-                case 'IRpcServerCallback':
+                case 'IRpcServerReadableStream':
                     printer.printLn(`public ${methodInfo.methodName}(requests: Array<${methodInfo.requestTypeStr}>, metadata?: grpc.Metadata): Promise<${methodInfo.responseTypeStr}> {`, 1);
                     printer.printLn(`return new Promise((resolve, reject) => {`, 2);
                     printer.printLn(`let call = this.client.${methodInfo.methodName}(metadata, (err: Error, res: ${methodInfo.responseTypeStr}) => {`, 3);

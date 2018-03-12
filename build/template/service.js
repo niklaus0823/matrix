@@ -26,9 +26,9 @@ var RpcServerMiddlewareTpl;
         return printer.getOutput();
     };
 })(RpcServerMiddlewareTpl = exports.RpcServerMiddlewareTpl || (exports.RpcServerMiddlewareTpl = {}));
-var RpcServerMiddlewareRegisterTpl;
-(function (RpcServerMiddlewareRegisterTpl) {
-    RpcServerMiddlewareRegisterTpl.print = (serviceInfos) => {
+var RpcServerRegisterTpl;
+(function (RpcServerRegisterTpl) {
+    RpcServerRegisterTpl.print = (serviceInfos) => {
         const printer = new Printer_1.Printer(0);
         printer.printLn(`import {RpcApplication, WrappedHandler} from 'matrixes-lib';`);
         printer.printEmptyLn();
@@ -61,4 +61,4 @@ var RpcServerMiddlewareRegisterTpl;
         printer.printLn(`};`);
         return printer.getOutput();
     };
-})(RpcServerMiddlewareRegisterTpl = exports.RpcServerMiddlewareRegisterTpl || (exports.RpcServerMiddlewareRegisterTpl = {}));
+})(RpcServerRegisterTpl = exports.RpcServerRegisterTpl || (exports.RpcServerRegisterTpl = {}));

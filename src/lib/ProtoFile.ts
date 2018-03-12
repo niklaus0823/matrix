@@ -1,5 +1,7 @@
+import * as LibFs from 'fs-extra';
 import * as LibPath from 'path';
 import * as Utility from './Utility';
+import * as Proto from './Proto';
 
 /**
  * eg:
@@ -52,7 +54,7 @@ export interface ProtoServices {
  */
 export const readProtoFiles = async (protoDir: string, outputDir: string, excludes?: Array<string>): Promise<Array<ProtoFileType>> => {
     let files = await Utility.readFiles(protoDir, 'proto', excludes);
-    let protoFiles = files.map((file: string) => {
+    let protoFiles: Array<ProtoFileType> = files.map((file: string) => {
         // 实际上 readFiles 已经进行了前置过滤，这里再做一次过滤。
         if (LibPath.extname(file) !== '.proto') {
             return undefined;

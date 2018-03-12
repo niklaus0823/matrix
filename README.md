@@ -45,7 +45,7 @@ sasdn proto [options]
 Generate rpc server service stubs from proto files.
 
 ```
-sasdn service [options]
+sasdn grpc [options]
 
   Options:
 
@@ -55,6 +55,9 @@ sasdn service [options]
     -o, --output <dir>      directory to output service codes
     -i, --import <items>    third party proto import path: e.g path1,path2,path3
     -e, --exclude <items>   files or paths in -p shall be excluded: e.g file1,path1,path2,file2
+    -c, --client            add -c to output grpc client source codes
+    -s, --server            add -c to output grpc server source codes
+
 ```
 
 ## Simple
@@ -100,11 +103,22 @@ matrix proto \
 --all
 ```
 
-### Simple：Generate service codes
+### Simple：Generate grpc server codes
 ```bash
-matrix service \
+matrix grpc \
 --proto ./examples/proto \
 --output ./examples/output \
 --import ./examples/proto_modules \
 --exclude ./examples/proto_modules/google \
+--server
+```
+
+### Simple：Generate grpc client codes
+```bash
+matrix grpc \
+--proto ./examples/proto \
+--output ./examples/output \
+--import ./examples/proto_modules \
+--exclude ./examples/proto_modules/google \
+--client
 ```
