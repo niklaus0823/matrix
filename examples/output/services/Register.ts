@@ -1,6 +1,6 @@
 import {RpcApplication, WrappedHandler} from 'matrixes-lib';
 
-import {BookServiceService, BookApiServiceService} from '../proto/book/book_grpc_pb';
+import {BookServiceService} from '../proto/book/book_grpc_pb';
 import {UserServiceService} from '../proto/user/user_grpc_pb';
 
 import {getBookHandler} from './book/book_grpc_pb/BookService/getBook';
@@ -8,8 +8,6 @@ import {getBooksViaAuthorHandler} from './book/book_grpc_pb/BookService/getBooks
 import {getGreatestBookHandler} from './book/book_grpc_pb/BookService/getGreatestBook';
 import {getBooksHandler} from './book/book_grpc_pb/BookService/getBooks';
 import {getBookUserHandler} from './book/book_grpc_pb/BookService/getBookUser';
-import {getBookApiHandler} from './book/book_grpc_pb/BookApiService/getBookApi';
-import {getBooksViaAuthorApiHandler} from './book/book_grpc_pb/BookApiService/getBooksViaAuthorApi';
 import {getUserHandler} from './user/user_grpc_pb/UserService/getUser';
 
 export const registerServices = function (app: RpcApplication) {
@@ -32,16 +30,6 @@ export const registerServices = function (app: RpcApplication) {
         },
         getBookUser: async (call, callback) => {
             let wrappedHandler: WrappedHandler = app.wrapGrpcHandler(getBookUserHandler);
-            wrappedHandler(call, callback).then(_ => _);
-        },
-    });
-    app.server.addService(BookApiServiceService, {
-        getBookApi: async (call, callback) => {
-            let wrappedHandler: WrappedHandler = app.wrapGrpcHandler(getBookApiHandler);
-            wrappedHandler(call, callback).then(_ => _);
-        },
-        getBooksViaAuthorApi: async (call, callback) => {
-            let wrappedHandler: WrappedHandler = app.wrapGrpcHandler(getBooksViaAuthorApiHandler);
             wrappedHandler(call, callback).then(_ => _);
         },
     });

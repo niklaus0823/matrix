@@ -4,13 +4,16 @@ import * as LibPath from 'path';
 import * as Utility from './lib/Utility';
 import * as Proto from './lib/Proto';
 import * as ProtoFile from './lib/ProtoFile';
-import {RpcClientTpl} from './template/client';
-import {RpcServerRegisterTpl, RpcServerMiddlewareTpl} from './template/service';
+import {TplRpcClient} from './template/client/client';
+import {TplRpcServerService} from './template/server/service';
+import {TplRpcServerServiceRegister} from './template/server/register';
+import {TplGatewayRouter} from './template/gateway/router';
+import {TplGatewayApi} from './template/gateway/api';
 
 const debug = require('debug')('matrix:service');
 const pkg = require('../package.json');
 
-// node ./build/matrix.js service -p ./examples/proto -o ./examples/output -i ./examples/proto_modules -e ./examples/proto_modules/google,./examples/proto_modules/kafka,./examples/proto_modules/memcached -c -s -g
+// tsc && node ./build/matrix.js grpc -p ./examples/proto -o ./examples/output -i ./examples/proto_modules -e ./examples/proto_modules/google,./examples/proto_modules/kafka,./examples/proto_modules/memcached -c -s -g
 program.version(pkg.version)
     .option('-p, --proto <dir>', 'directory of source proto files')
     .option('-o, --output <dir>', 'directory to output codes')
@@ -19,6 +22,7 @@ program.version(pkg.version)
     .option('-c, --client', 'add -c to output grpc client source codes')
     .option('-s, --server', 'add -s to output grpc server source codes')
     .option('-g, --gateway', 'add -g to output gateway api source codes')
+    .option('-d, --deepSearchLevel <number>', 'add -d to parse swagger definition depth, default: 5')
     .parse(process.argv);
 
 const PROTO_DIR = (program as any).proto === undefined ? undefined : Utility.getAbsolutePath((program as any).proto);
@@ -28,11 +32,13 @@ const IMPORTS: Array<string> = (program as any).import === undefined ? [] : (pro
 const IS_OUTPUT_CLIENT = (program as any).client !== undefined;
 const IS_OUTPUT_SERVER = (program as any).server !== undefined;
 const IS_OUTPUT_GATEWAY = (program as any).gateway !== undefined;
+const DEEP_SEARCH_LEVEL = (program as any).deepSearchLevel === undefined ? 5 : (program as any).deepSearchLevel;
 
 class CLI {
 
     private _protoFiles: Array<ProtoFile.ProtoFileType> = [];
     private _protoImportMap: Proto.ProtoInfoMap = new Map();
+    private _protoMessageTypeMap: Proto.ProtoMessageTypeMap = new Map();
 
     static instance() {
         return new CLI();
@@ -110,7 +116,7 @@ class CLI {
         }));
 
         // 遍历 protoType 的 service 和 serviceMethod，并计算出需要的 Array<ProtoFile.ProtoServices> 结构
-        let servicesInfos = [] as Array<ProtoFile.ProtoServices>;
+        let serviceInfos = [] as Array<ProtoFile.ProtoServices>;
         protos.forEach((proto: Proto.ProtoType) => {
             if (proto.protoInfoMap.size == 0) {
                 return;
@@ -129,48 +135,75 @@ class CLI {
                 pbImportPath: ProtoFile.genProtoImportPath(proto.protoFile, OUTPUT_DIR),
                 pbSvcImportPath: ProtoFile.genProtoServiceImportPath(proto.protoFile, OUTPUT_DIR),
                 services: {},
-                serviceMethods: {}
+                serviceMethods: {},
+                gatewayMethods: {}
             };
 
             // generate method via protoInfo
             proto.protoInfoMap.forEach((protoInfo: Proto.ProtoInfo) => {
                 if (!protoInfo.service) {
+                    // merge proto message type
+                    if (protoInfo.type !== undefined) {
+                        this._protoMessageTypeMap.set(`${protoInfo.namespace}.${protoInfo.type.name}`, protoInfo.type);
+                    }
+
                     return;
                 }
 
                 // add proto service
                 let service: protobuf.Service = protoInfo.service;
                 serviceInfo.services[service.name] = service;
-                serviceInfo.serviceMethods[service.name] = {};
 
                 // loop proto service method and generate method code
                 Object.keys(protoInfo.service.methods).forEach((methodName: string) => {
                     if (!service.methods.hasOwnProperty(methodName)) {
                         return;
                     }
-                    serviceInfo.serviceMethods[service.name][Utility.lcFirst(methodName)] = service.methods[methodName];
+                    let method = service.methods[methodName];
+                    if (method.options === undefined) {
+                        if (!serviceInfo.serviceMethods.hasOwnProperty(service.name)) {
+                            serviceInfo.serviceMethods[service.name] = {};
+                        }
+                        serviceInfo.serviceMethods[service.name][Utility.lcFirst(methodName)] = method;
+                    } else {
+                        if (!serviceInfo.gatewayMethods.hasOwnProperty(service.name)) {
+                            serviceInfo.gatewayMethods[service.name] = {};
+                        }
+                        serviceInfo.gatewayMethods[service.name][Utility.lcFirst(methodName)] = method;
+                    }
                 });
             });
 
-            servicesInfos.push(serviceInfo);
+            serviceInfos.push(serviceInfo);
         });
 
-        if (servicesInfos.length === 0) {
+        if (serviceInfos.length === 0) {
             throw new Error('no service files need export');
         }
 
-        if (IS_OUTPUT_SERVER || IS_OUTPUT_CLIENT) {
-            servicesInfos.forEach((serviceInfo: ProtoFile.ProtoServices) => {
+        if (IS_OUTPUT_SERVER || IS_OUTPUT_CLIENT || IS_OUTPUT_GATEWAY) {
+            serviceInfos.forEach((serviceInfo: ProtoFile.ProtoServices) => {
                 Object.keys(serviceInfo.services).forEach((serviceName: string) => {
                     let service = serviceInfo.services[serviceName];
-                    let serviceMethods = serviceInfo.serviceMethods[serviceName];
 
-                    if (IS_OUTPUT_SERVER) {
-                        this._genMethodCode(service, serviceMethods, serviceInfo.protoFile);
+                    if (serviceInfo.serviceMethods.hasOwnProperty(serviceName)) {
+                        let serviceMethods = serviceInfo.serviceMethods[serviceName];
+
+                        if (IS_OUTPUT_SERVER) {
+                            this._genRpcServerServiceCode(service, serviceMethods, serviceInfo.protoFile);
+                        }
+
+                        if (IS_OUTPUT_CLIENT) {
+                            this._genRpcClientCode(service, serviceMethods, serviceInfo.protoFile);
+                        }
                     }
 
-                    if (IS_OUTPUT_CLIENT) {
-                        this._genServiceCode(service, serviceMethods, serviceInfo.protoFile);
+                    if (serviceInfo.gatewayMethods.hasOwnProperty(serviceName)) {
+                        let gatewayMethods = serviceInfo.gatewayMethods[serviceName];
+
+                        if (IS_OUTPUT_GATEWAY) {
+                            this._genApiGatewayApiCode(service, gatewayMethods, serviceInfo.protoFile);
+                        }
                     }
                 });
             });
@@ -183,18 +216,29 @@ class CLI {
             if (!LibFs.existsSync(outputDir)) {
                 await LibFs.mkdir(outputDir);
             }
-            LibFs.writeFileSync(outputPath, RpcServerRegisterTpl.print(servicesInfos));
+            LibFs.writeFileSync(outputPath, TplRpcServerServiceRegister.print(serviceInfos));
+        }
+
+        if (IS_OUTPUT_GATEWAY) {
+            // 创建 router 默认文件夹
+            let outputPath = LibPath.join(OUTPUT_DIR, 'router', 'Router.ts');
+            let outputDir = LibPath.dirname(outputPath);
+            if (!LibFs.existsSync(outputDir)) {
+                await LibFs.mkdir(outputDir);
+            }
+            LibFs.writeFileSync(outputPath, TplGatewayRouter.print(serviceInfos));
         }
     }
 
-    private _genMethodCode(service: protobuf.Service, serviceMethods: {[serviceMethod: string]: protobuf.Method}, protoFile: ProtoFile.ProtoFileType): void {
+    private _genRpcServerServiceCode(service: protobuf.Service, serviceMethods: {[serviceMethod: string]: protobuf.Method}, protoFile: ProtoFile.ProtoFileType): void {
 
         Object.keys(serviceMethods).forEach((methodName) => {
-            debug(`Generate service method: ${service.name}.${methodName}`);
+            debug(`Generate rpc server method: ${service.name}.${methodName}`);
 
             let method = serviceMethods[methodName];
             let outputPath = ProtoFile.genFullOutputServicePath(protoFile, service, method);
             let methodInfo = Proto.genRpcMethodInfo(protoFile, method, outputPath, this._protoImportMap);
+            let methodFieldInfo = Proto.genRpcMethodFieldInfo(`${methodInfo.namespace}.${methodInfo.requestTypeStr}`, this._protoMessageTypeMap, DEEP_SEARCH_LEVEL);
 
             if (!method.requestStream && !method.responseStream) {
                 methodInfo.callTypeStr = 'IRpcServerUnaryCall';
@@ -218,19 +262,28 @@ class CLI {
             if (!LibFs.existsSync(outputDir)) {
                 LibFs.mkdirsSync(outputDir);
             }
-            LibFs.writeFileSync(outputPath, RpcServerMiddlewareTpl.print(methodInfo));
+            LibFs.writeFileSync(outputPath, TplRpcServerService.print(methodInfo, methodFieldInfo));
         });
 
     }
 
-    private _genServiceCode(service: protobuf.Service, serviceMethods: {[serviceMethod: string]: protobuf.Method}, protoFile: ProtoFile.ProtoFileType): void {
-        debug(`Generate service: ${service.name}`);
+    private _genRpcClientCode(service: protobuf.Service, serviceMethods: {[serviceMethod: string]: protobuf.Method}, protoFile: ProtoFile.ProtoFileType): void {
+        let methodNames = Object.keys(serviceMethods);
+        if (methodNames.length == 0) {
+            return;
+        }
+
+        debug(`Generate rpc client: ${service.name}`);
 
         // parse proto service method info
         let outputPath = ProtoFile.genFullOutputServiceClientPath(protoFile, service);
         let methodInfos = [] as Array<Proto.RpcMethodInfo>;
-        Object.keys(serviceMethods).forEach((methodName: string) => {
+        methodNames.forEach((methodName: string) => {
             let method = serviceMethods[methodName];
+            if (method.options !== undefined) {
+                return;
+            }
+
             let methodInfo = Proto.genRpcMethodInfo(protoFile, method, outputPath, this._protoImportMap, 'client');
             if (!method.requestStream && !method.responseStream) {
                 methodInfo.callTypeStr = 'IRpcServerUnaryCall';
@@ -249,7 +302,27 @@ class CLI {
             LibFs.mkdirsSync(outputDir);
         }
 
-        LibFs.writeFileSync(outputPath, RpcClientTpl.print(service, methodInfos, ProtoFile.genProtoServiceImportPath(protoFile, outputPath, 'client')));
+        LibFs.writeFileSync(outputPath, TplRpcClient.print(service, methodInfos, ProtoFile.genProtoServiceImportPath(protoFile, outputPath, 'client')));
+    }
+
+    private _genApiGatewayApiCode(service: protobuf.Service, gatewayMethods: {[serviceMethod: string]: protobuf.Method}, protoFile: ProtoFile.ProtoFileType): void {
+        Object.keys(gatewayMethods).forEach((methodName) => {
+            let method = gatewayMethods[methodName];
+            if (method.options === undefined) {
+                return;
+            }
+
+            debug(`Generate gateway api method: ${service.name}.${methodName}`);
+            let outputPath = ProtoFile.genFullOutputGatewayPath(protoFile, service, method);
+            let methodInfo = Proto.genRpcMethodInfo(protoFile, method, outputPath, this._protoImportMap, 'router');
+            let methodFieldInfo = Proto.genRpcMethodFieldInfo(`${methodInfo.namespace}.${methodInfo.requestTypeStr}`, this._protoMessageTypeMap, DEEP_SEARCH_LEVEL);
+
+            let outputDir = LibPath.dirname(outputPath);
+            if (!LibFs.existsSync(outputDir)) {
+                LibFs.mkdirsSync(outputDir);
+            }
+            LibFs.writeFileSync(outputPath, TplGatewayApi.print(methodInfo, methodFieldInfo));
+        });
     }
 }
 

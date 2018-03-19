@@ -97,6 +97,16 @@ exports.genFullOutputServiceClientPath = (protoFile, service) => {
     return LibPath.join(protoFile.outputPath, 'clients', protoFile.relativePath, 'MS' + service.name + 'Client.ts');
 };
 /**
+ * Generate full service gateway api stub code output path.
+ * @param {ProtoFileType} protoFile
+ * @param {Service} service
+ * @param {Method} method
+ * @returns {string}
+ */
+exports.genFullOutputGatewayPath = (protoFile, service, method) => {
+    return LibPath.join(protoFile.outputPath, 'router', protoFile.relativePath, service.name, Utility.lcFirst(method.name) + '.ts');
+};
+/**
  * Generate message proto js file (e.g *_pb.js) import path.
  * Source code path is generated with {@link genFullOutputServicePath},
  * message proto js import path is relative to it.

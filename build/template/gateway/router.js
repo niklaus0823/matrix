@@ -1,18 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Printer_1 = require("../lib/Printer");
-var RpcGatewayRouterTpl;
-(function (RpcGatewayRouterTpl) {
-    RpcGatewayRouterTpl.print = (serviceInfos) => {
+const Printer_1 = require("../../lib/Printer");
+var TplGatewayRouter;
+(function (TplGatewayRouter) {
+    TplGatewayRouter.print = (serviceInfos) => {
         const printer = new Printer_1.Printer(0);
-        printer.printLn(`import * as Router from 'koa-router';`);
-        printer.printLn(`import {GatewayApiBase} from 'matrixes-lib';`);
+        printer.printLn(`import {GatewayApiBase, KoaRouter} from 'matrixes-lib';`);
         printer.printEmptyLn();
         printer.printLn(`const API_PATHS = [`);
         serviceInfos.forEach((servicesInfo) => {
-            Object.keys(servicesInfo.serviceMethods).forEach((serviceName) => {
-                Object.keys(servicesInfo.serviceMethods[serviceName]).forEach((methodName) => {
-                    printer.printLn(`'./router/${(servicesInfo.protoFile.relativePath === '.') ? '' : servicesInfo.protoFile.relativePath}/${serviceName}/${methodName}.ts',`, 1);
+            Object.keys(servicesInfo.gatewayMethods).forEach((serviceName) => {
+                Object.keys(servicesInfo.gatewayMethods[serviceName]).forEach((methodName) => {
+                    printer.printLn(`'./${(servicesInfo.protoFile.relativePath === '.') ? '' : servicesInfo.protoFile.relativePath}/${serviceName}/${methodName}',`, 1);
                 });
             });
         });
@@ -22,11 +21,11 @@ var RpcGatewayRouterTpl;
         printer.printEmptyLn();
         printer.printLn(`private static _instance: RouteLoader;`, 1);
         printer.printLn(`private _initialized: boolean;`, 1);
-        printer.printLn(`private _router: Router;`, 1);
+        printer.printLn(`private _router: KoaRouter;`, 1);
         printer.printEmptyLn();
         printer.printLn(`private constructor() {
         this._initialized = false;
-        this._router = new Router();
+        this._router = new KoaRouter();
     }`, 1);
         printer.printEmptyLn();
         printer.printLn(`public static instance(): RouteLoader {
@@ -54,7 +53,7 @@ var RpcGatewayRouterTpl;
         });
     }`, 1);
         printer.printEmptyLn();
-        printer.printLn(`public getRouter(): Router {
+        printer.printLn(`public getRouter(): KoaRouter {
         return this._router;
     }`, 1);
         printer.printEmptyLn();
@@ -69,4 +68,4 @@ var RpcGatewayRouterTpl;
         printer.printLn(`}`);
         return printer.getOutput();
     };
-})(RpcGatewayRouterTpl = exports.RpcGatewayRouterTpl || (exports.RpcGatewayRouterTpl = {}));
+})(TplGatewayRouter = exports.TplGatewayRouter || (exports.TplGatewayRouter = {}));

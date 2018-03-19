@@ -42,6 +42,9 @@ export interface ProtoServices {
     serviceMethods: {
         [protoServiceName: string]: {[serviceMethod: string]: protobuf.Method};
     };
+    gatewayMethods: {
+        [protoServiceName: string]: {[serviceMethod: string]: protobuf.Method};
+    };
 }
 
 /**
@@ -153,6 +156,23 @@ export const genFullOutputServiceClientPath = (protoFile: ProtoFileType, service
         'clients',
         protoFile.relativePath,
         'MS' + service.name + 'Client.ts'
+    );
+};
+
+/**
+ * Generate full service gateway api stub code output path.
+ * @param {ProtoFileType} protoFile
+ * @param {Service} service
+ * @param {Method} method
+ * @returns {string}
+ */
+export const genFullOutputGatewayPath = (protoFile: ProtoFileType, service: protobuf.Service, method: protobuf.Method) => {
+    return LibPath.join(
+        protoFile.outputPath,
+        'router',
+        protoFile.relativePath,
+        service.name,
+        Utility.lcFirst(method.name) + '.ts'
     );
 };
 

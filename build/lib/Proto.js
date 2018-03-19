@@ -12,7 +12,7 @@ const LibFs = require("fs-extra");
 const protobuf = require("protobufjs");
 const Utility = require("./Utility");
 const ProtoFile = require("./ProtoFile");
-const PROTO_BUFFER_BASE_TYPE = [
+exports.PROTO_BUFFER_BASE_TYPE = [
     'double',
     'float',
     'int32',
@@ -29,6 +29,7 @@ const PROTO_BUFFER_BASE_TYPE = [
     'string',
     'bytes'
 ];
+const METHOD_OPTIONS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch'];
 /**
  * 读取 *.proto 文件生成 IParserResult 结构体
  *
@@ -103,15 +104,89 @@ exports.genRpcMethodInfo = (protoFile, method, outputPath, protoImportMap, dirNa
         responseTypeImportPath = ProtoFile.genProtoImportPath(responseProtoInfo.protoFile, outputPath, dirName);
     }
     protoMsgImportPaths = exports.addIntoRpcMethodImportPathInfos(protoMsgImportPaths, responseType, responseTypeImportPath);
+    let options = null;
+    if (method.options !== undefined) {
+        Object.keys(method.options).forEach((option) => {
+            if (option.indexOf('(google.api.http).') !== 0) {
+                return;
+            }
+            let optionName = option.replace('(google.api.http).', '');
+            if (METHOD_OPTIONS.indexOf(optionName) != -1) {
+                options = {
+                    method: optionName,
+                    uri: method.options[option]
+                };
+                return;
+            }
+        });
+    }
     return {
+        namespace: method.parent.parent.name,
         callTypeStr: '',
         requestTypeStr: requestType,
         responseTypeStr: responseType,
         hasCallback: false,
         hasRequest: false,
         methodName: Utility.lcFirst(method.name),
-        protoMsgImportPath: protoMsgImportPaths
+        protoMsgImportPath: protoMsgImportPaths,
+        options: options
     };
+};
+/**
+ * When handling proto to generate services files, it's necessary to know
+ * the imported messages in third party codes.
+ *
+ * @param {string} typeName
+ * @param {ProtoMessageTypeMap} messageTypeMap
+ * @param {number} maxLevel
+ * @param {number} level
+ * @returns {Object}
+ */
+exports.genRpcMethodFieldInfo = (typeName, messageTypeMap, maxLevel = 5, level = 1) => {
+    let type = messageTypeMap.get(typeName);
+    if (type == undefined) {
+        return {};
+    }
+    let fieldInfos = {};
+    Object.keys(type.fields).forEach((name) => {
+        let field = type.fields[name];
+        let fieldType = field.type;
+        let fieldInfo;
+        let isMap = false;
+        if (field.hasOwnProperty('keyType') === true) {
+            isMap = true;
+        }
+        if (exports.PROTO_BUFFER_BASE_TYPE.indexOf(field.type) < 0) {
+            if (messageTypeMap.get(field.type)) {
+                if (level < maxLevel) {
+                    fieldType = field.type;
+                    fieldInfo = exports.genRpcMethodFieldInfo(field.type, messageTypeMap, maxLevel, level + 1);
+                }
+                else {
+                    fieldType = 'object';
+                }
+            }
+            else {
+                fieldType = 'any';
+            }
+        }
+        let fieldComment;
+        try {
+            fieldComment = JSON.parse(field.comment);
+        }
+        catch (e) {
+            fieldComment = null;
+        }
+        fieldInfos[field.name] = {
+            fieldType: fieldType,
+            fieldName: field.name,
+            fieldComment: fieldComment,
+            fieldInfo: fieldInfo,
+            isRepeated: field.repeated,
+            isMap: isMap,
+        };
+    });
+    return fieldInfos;
 };
 exports.addIntoRpcMethodImportPathInfos = (protoMsgImportPaths, type, importPath) => {
     if (!protoMsgImportPaths.hasOwnProperty(importPath)) {
