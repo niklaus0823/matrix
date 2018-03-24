@@ -4,7 +4,7 @@ const Proto = require("../lib/Proto");
 const Utility = require("../lib/Utility");
 var TplFieldInfo;
 (function (TplFieldInfo) {
-    TplFieldInfo.print = (printer, field, indentLevel) => {
+    TplFieldInfo.printJoiValidate = (printer, field, indentLevel) => {
         let { fieldName, fieldType, isRepeated, isMap, fieldInfo } = field;
         if (isRepeated) {
             fieldName = fieldName + 'List';
@@ -24,7 +24,7 @@ var TplFieldInfo;
                 printer.printLn(`${fieldName}: joi.object().keys({`, indentLevel);
             }
             Object.keys(fieldInfo).forEach((_fieldName) => {
-                TplFieldInfo.print(printer, fieldInfo[_fieldName], indentLevel + 1);
+                TplFieldInfo.printJoiValidate(printer, fieldInfo[_fieldName], indentLevel + 1);
             });
             if (isRepeated || isMap) {
                 printer.printLn(`}))${extraMapOrRepeatedStr},`, indentLevel);
@@ -51,6 +51,80 @@ var TplFieldInfo;
                 else {
                     printer.printLn(`${fieldName}: joi.${fieldType}()${extraStr},`, indentLevel);
                 }
+            }
+        }
+    };
+    TplFieldInfo.printMockResponse = (printer, field, indentLevel, name, pName) => {
+        let { fieldName, fieldType, isRepeated, isMap, fieldInfo } = field;
+        if (isRepeated) {
+            fieldName = fieldName + 'List';
+        }
+        else if (isMap) {
+            fieldName = fieldName + 'Map';
+        }
+        const getFieldName = 'get' + Utility.ucFirst(fieldName);
+        const setFieldName = 'set' + Utility.ucFirst(fieldName);
+        // 根据 fieldInfo 拆分为两种处理方式，1.存在下层结构，2.不存在下层结构
+        if (fieldInfo && fieldInfo !== null) {
+            // Means this field has child schema
+            let pbFieldType = fieldType.split('.')[1];
+            let pbFieldName = Utility.lcFirst(pbFieldType);
+            let pbLevel = (isRepeated || isMap) ? indentLevel + 1 : indentLevel;
+            printer.printEmptyLn();
+            if (isRepeated) {
+                printer.printLn(`// List ${fieldName}`, indentLevel);
+                printer.printLn(`const ${fieldName}: Array<${pbFieldType}> = [];`, indentLevel);
+                printer.printLn(`(Mock.Random.range(Mock.Random.natural(1, 5), Mock.Random.natural(6, 10)) as any).forEach(() => {`, indentLevel);
+            }
+            else if (isMap) {
+                printer.printLn(`// Map ${fieldName}`, indentLevel);
+                printer.printLn(`(Mock.Random.range(Mock.Random.natural(1, 5), Mock.Random.natural(6, 10)) as any).forEach((num: string) => {`, indentLevel);
+            }
+            // fieldInfo Field
+            pName = name;
+            printer.printLn(`// PB ${fieldType}`, pbLevel);
+            printer.printLn(`const ${pbFieldName} = new ${pbFieldType}();`, pbLevel);
+            Object.keys(fieldInfo).forEach((_fieldName) => {
+                TplFieldInfo.printMockResponse(printer, fieldInfo[_fieldName], pbLevel, pbFieldName, pName);
+            });
+            printer.printEmptyLn();
+            if (isRepeated) {
+                printer.printLn(`${fieldName}.push(${pbFieldName});`, pbLevel);
+                printer.printLn(`});`, indentLevel);
+                printer.printLn(`${name}.${setFieldName}(${fieldName});`, indentLevel);
+            }
+            else if (isMap) {
+                printer.printLn(`${name}.${getFieldName}().set(num, ${pbFieldName});`, pbLevel);
+                printer.printLn(`});`, indentLevel);
+            }
+            else {
+                printer.printLn(`${name}.${setFieldName}(${pbFieldName});`, pbLevel);
+            }
+        }
+        else {
+            let baseMockValue = _getBaseMockValue(fieldType);
+            if (baseMockValue === false) {
+                return;
+            }
+            // joiType undefined
+            if (isRepeated) {
+                printer.printEmptyLn();
+                printer.printLn(`// List ${fieldName}`, indentLevel);
+                printer.printLn(`const ${fieldName}: Array<${fieldType}> = [];`, indentLevel);
+                printer.printLn(`(Mock.Random.range(Mock.Random.natural(1, 5), Mock.Random.natural(6, 10)) as any).forEach((num) => {`, indentLevel);
+                printer.printLn(`${fieldName}.push(${baseMockValue});`, indentLevel + 1);
+                printer.printLn(`});`, indentLevel);
+                printer.printLn(`${name}.${setFieldName}(${fieldName});`, indentLevel);
+            }
+            else if (isMap) {
+                printer.printEmptyLn();
+                printer.printLn(`// Map ${fieldName}`, indentLevel);
+                printer.printLn(`(Mock.Random.range(Mock.Random.natural(1, 5), Mock.Random.natural(6, 10)) as any).forEach((num) => {`, indentLevel);
+                printer.printLn(`${name}.${getFieldName}().set(num, ${baseMockValue});`, indentLevel + 1);
+                printer.printLn(`});`, indentLevel);
+            }
+            else {
+                printer.printLn(`${name}.${setFieldName}(${baseMockValue});`, indentLevel);
             }
         }
     };
@@ -157,5 +231,19 @@ var TplFieldInfo;
             }
         }
         return extraStr;
+    };
+    const _getBaseMockValue = (fieldType) => {
+        if (_isBoolean(fieldType)) {
+            return `Mock.Random.boolean()`;
+        }
+        else if (_isString(fieldType)) {
+            return `Mock.Random.string('symbol', 5, 10)`;
+        }
+        else if (_isNumber(fieldType)) {
+            return `Mock.Random.natural()`;
+        }
+        else {
+            return false;
+        }
     };
 })(TplFieldInfo = exports.TplFieldInfo || (exports.TplFieldInfo = {}));

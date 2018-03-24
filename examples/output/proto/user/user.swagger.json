@@ -25,6 +25,42 @@
         },
         "name": {
           "type": "string"
+        },
+        "author": {
+          "$ref": "#/definitions/userUserAuthor"
+        }
+      }
+    },
+    "userUserAuthor": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "author": {
+          "type": "string"
+        },
+        "book": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/userUserBook"
+          }
+        }
+      }
+    },
+    "userUserBook": {
+      "type": "object",
+      "properties": {
+        "isbn": {
+          "type": "string",
+          "format": "int64"
+        },
+        "title": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
         }
       }
     }

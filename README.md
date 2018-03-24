@@ -5,14 +5,30 @@ Tools for developing with Microservice on Node.js.
 ## Prerequisites
 
 ``` bash
-$ npm install protoc-gen-grpc -g
+npm install protoc-gen-grpc -g
 ```
 
 ## Install
 
 ```bash
-$ npm install matrixes-cli -g
+npm install matrixes-cli -g
+
+matrix --help
+matrix proto --help
+matrix grpc --help
 ```
+
+## Support
+
+- [x] Support STREAM /Unary parameter  validation using `joi` library in gRPC server api.
+      - grpc.ServerUnaryCall
+      - grpc.ServerReadableStream
+      - grpc.ServerWriteableStream
+      - grpc.ServerDuplexStream
+- [x] Support  for POST/GET parameter validation using `joi` library  in Koa gateway api.
+- [x] Support for auto-generate Mock data in Koa gateway api
+- [ ] Support for auto-generating UnitTest code.
+
 
 ## Command
 ### Command: Proto
@@ -24,7 +40,7 @@ Generate:
 
 from proto files.
 
-```
+```bash
 sasdn proto [options]
 
   Options:
@@ -41,10 +57,16 @@ sasdn proto [options]
     -a, --all              also parse & output all proto files in import path?
 ```
 
-### Command: Service
-Generate rpc server service stubs from proto files.
+### Command: grpc
+Generate:
 
-```
+- Nodejs source code for creating the GRPC client
+- Nodejs source code for creating the GRPC server api
+- Nodejs source code for creating the KOA gateway api
+
+from proto files.
+
+```bash
 sasdn grpc [options]
 
   Options:
@@ -56,8 +78,10 @@ sasdn grpc [options]
     -i, --import <items>    third party proto import path: e.g path1,path2,path3
     -e, --exclude <items>   files or paths in -p shall be excluded: e.g file1,path1,path2,file2
     -c, --client            add -c to output grpc client source codes
-    -s, --server            add -c to output grpc server source codes
-
+    -s, --server            add -s to output grpc server source codes
+    -g, --gateway           add -g to output gateway router api source codes
+    -d, --deepSearchLevel <number> 	add -d to parse swagger definition depth, default: 5
+    
 ```
 
 ## Simple

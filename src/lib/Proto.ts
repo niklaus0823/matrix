@@ -163,6 +163,7 @@ export const genRpcMethodInfo = (protoFile: ProtoFile.ProtoFileType, method: pro
     let protoImportPath = ProtoFile.genProtoImportPath(protoFile, outputPath, dirName);
     let protoMsgImportPaths = {} as RpcMethodImportPathInfos;
 
+
     let requestType = method.requestType;
     let requestTypeImportPath = protoImportPath;
     if (protoImportMap.has(requestType)) {
@@ -218,11 +219,15 @@ export const genRpcMethodInfo = (protoFile: ProtoFile.ProtoFileType, method: pro
  *
  * @param {string} typeName
  * @param {ProtoMessageTypeMap} messageTypeMap
+ * @param {ProtoInfoMap} protoImportMap
+ * @param {string} outputPath
+ * @param {RpcMethodInfo} methodInfo
  * @param {number} maxLevel
  * @param {number} level
+ * @param {string} dirName
  * @returns {Object}
  */
-export const genRpcMethodFieldInfo = (typeName: string, messageTypeMap: ProtoMessageTypeMap, maxLevel: number = 5, level: number = 1): FieldInfoMap => {
+export const genRpcMethodFieldInfo = (typeName: string, messageTypeMap: ProtoMessageTypeMap, protoImportMap: ProtoInfoMap, outputPath: string, methodInfo: RpcMethodInfo, maxLevel: number = 5, level: number = 1, dirName: string = 'services'): FieldInfoMap => {
     let type: protobuf.Type = messageTypeMap.get(typeName);
     if (type == undefined) {
         return {};
@@ -240,10 +245,19 @@ export const genRpcMethodFieldInfo = (typeName: string, messageTypeMap: ProtoMes
         }
 
         if (PROTO_BUFFER_BASE_TYPE.indexOf(field.type) < 0) {
-            if (messageTypeMap.get(field.type)) {
+            // pb type will have two schema: 'user.User' or 'User'
+            fieldType = (field.type.indexOf('.') < 0) ? type.parent.name + '.' + field.type : field.type;
+            if (messageTypeMap.has(fieldType)) {
                 if (level < maxLevel) {
-                    fieldType = field.type;
-                    fieldInfo = genRpcMethodFieldInfo(field.type, messageTypeMap, maxLevel, level + 1);
+                    fieldInfo = genRpcMethodFieldInfo(fieldType, messageTypeMap, protoImportMap, outputPath, methodInfo, maxLevel, level + 1, dirName);
+                    let fieldProtoInfo: ProtoInfo = protoImportMap.get(fieldType);
+                    if (fieldProtoInfo !== undefined) {
+                        methodInfo.protoMsgImportPath = addIntoRpcMethodImportPathInfos(
+                            methodInfo.protoMsgImportPath,
+                            fieldProtoInfo.message,
+                            ProtoFile.genProtoImportPath(fieldProtoInfo.protoFile, outputPath, dirName)
+                        );
+                    }
                 } else {
                     fieldType = 'object';
                 }
@@ -276,6 +290,8 @@ export const addIntoRpcMethodImportPathInfos = (protoMsgImportPaths: RpcMethodIm
     if (!protoMsgImportPaths.hasOwnProperty(importPath)) {
         protoMsgImportPaths[importPath] = [];
     }
-    protoMsgImportPaths[importPath].push(type);
+    if (protoMsgImportPaths[importPath].indexOf(type) < 0) {
+        protoMsgImportPaths[importPath].push(type);
+    }
     return protoMsgImportPaths;
 };

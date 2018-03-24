@@ -30,7 +30,7 @@ export namespace TplRpcServerService {
                     printer.printLn(`await ctx.validate(request, {`, 2);
                     methodRequestFieldNames.forEach((fieldName: string) => {
                         let fieldInfo = methodRequestField[fieldName] as Proto.FieldInfo;
-                        TplFieldInfo.print(printer, fieldInfo, 3);
+                        TplFieldInfo.printJoiValidate(printer, fieldInfo, 3);
                     });
                     printer.printLn(`});`, 2);
                     printer.printLn(`callback(null, new ${methodInfo.responseTypeStr}());`, 2);
@@ -44,7 +44,7 @@ export namespace TplRpcServerService {
                     printer.printLn(`await ctx.validate(request, {`, 2);
                     methodRequestFieldNames.forEach((fieldName: string) => {
                         let fieldInfo = methodRequestField[fieldName] as Proto.FieldInfo;
-                        TplFieldInfo.print(printer, fieldInfo, 3);
+                        TplFieldInfo.printJoiValidate(printer, fieldInfo, 3);
                     });
                     printer.printLn(`});`, 2);
                     printer.printLn(`call.write(new ${methodInfo.responseTypeStr}());`, 2);
@@ -61,7 +61,7 @@ export namespace TplRpcServerService {
                     printer.printLn(`await ctx.validate(request, {`, 3);
                     Object.keys(methodRequestField).forEach((fieldName: string) => {
                         let fieldInfo = methodRequestField[fieldName] as Proto.FieldInfo;
-                        TplFieldInfo.print(printer, fieldInfo, 4);
+                        TplFieldInfo.printJoiValidate(printer, fieldInfo, 4);
                     });
                     printer.printLn(`});`, 3);
                     printer.printLn(`callback(null, new ${methodInfo.responseTypeStr}());`, 3);
@@ -77,7 +77,7 @@ export namespace TplRpcServerService {
                     printer.printLn(`await ctx.validate(request, {`, 3);
                     Object.keys(methodRequestField).forEach((fieldName: string) => {
                         let fieldInfo = methodRequestField[fieldName] as Proto.FieldInfo;
-                        TplFieldInfo.print(printer, fieldInfo, 4);
+                        TplFieldInfo.printJoiValidate(printer, fieldInfo, 4);
                     });
                     printer.printLn(`});`, 3);
                     printer.printLn(`call.write(new ${methodInfo.responseTypeStr}());`, 3);

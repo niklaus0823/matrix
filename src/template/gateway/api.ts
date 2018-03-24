@@ -5,8 +5,10 @@ import {TplFieldInfo} from '../fieldInfo';
 
 export namespace TplGatewayApi {
 
-    export const print = (methodInfo: Proto.RpcMethodInfo, methodRequestField: Proto.FieldInfoMap): string => {
+    export const print = (methodInfo: Proto.RpcMethodInfo, requestMethodFieldInfo: Proto.FieldInfoMap, responseMethodFieldInfo: Proto.FieldInfoMap): string => {
+
         const printer = new Printer(0);
+        printer.printLn(`import * as Mock from 'mockjs';`);
         printer.printLn(`import {GatewayApiBase, GatewayContext, MiddlewareNext, joi, joiType} from 'matrixes-lib';`);
         Object.keys(methodInfo.protoMsgImportPath).forEach((importPath) => {
             printer.printLn(`import {${methodInfo.protoMsgImportPath[importPath].join(', ')}} from '${importPath}';`);
@@ -27,12 +29,19 @@ export namespace TplGatewayApi {
         printer.printLn(`this.uri = '${methodInfo.options.uri}';`, 2);
         printer.printLn(`this.type = 'application/json; charset=utf-8';`, 2);
         printer.printLn(`this.schemaDefObj = {`, 2);
-        printer.printLn(`body: joi.object().keys({`, 3);
-        Object.keys(methodRequestField).forEach((fieldName: string) => {
-            let fieldInfo = methodRequestField[fieldName] as Proto.FieldInfo;
-            TplFieldInfo.print(printer, fieldInfo, 4);
-        });
-        printer.printLn(`})`, 3);
+
+        const requestMethodFieldNames = Object.keys(requestMethodFieldInfo);
+        if (requestMethodFieldNames.length > 0) {
+            printer.printLn(`body: joi.object().keys({`, 3);
+            requestMethodFieldNames.forEach((fieldName: string) => {
+                let fieldInfo = requestMethodFieldInfo[fieldName] as Proto.FieldInfo;
+                TplFieldInfo.printJoiValidate(printer, fieldInfo, 4);
+            });
+            printer.printLn(`})`, 3);
+        } else {
+            printer.printLn(`body: joi.object()`, 3);
+        }
+
         printer.printLn(`};`, 2);
         printer.printLn(`}`, 1);
 
@@ -43,7 +52,19 @@ export namespace TplGatewayApi {
 
         printer.printEmptyLn();
         printer.printLn(`public async handleMock(ctx: GatewayContext, next: MiddlewareNext, params: RequestParams): Promise<${methodInfo.responseTypeStr}.AsObject> {`, 1);
-        printer.printLn(`return Promise.resolve((new ${methodInfo.responseTypeStr}()).toObject());`, 2);
+        printer.printLn(`const response = new ${methodInfo.responseTypeStr}();`, 2);
+
+        printer.printEmptyLn();
+        const responseMethodFieldNames = Object.keys(responseMethodFieldInfo);
+        if (responseMethodFieldNames.length > 0) {
+            responseMethodFieldNames.forEach((fieldName: string) => {
+                let fieldInfo = responseMethodFieldInfo[fieldName] as Proto.FieldInfo;
+                TplFieldInfo.printMockResponse(printer, fieldInfo, 2, 'response');
+            });
+        }
+
+        printer.printEmptyLn();
+        printer.printLn(`return Promise.resolve(response.toObject());`, 2);
         printer.printLn(`}`, 1);
 
         printer.printLn(`}`);

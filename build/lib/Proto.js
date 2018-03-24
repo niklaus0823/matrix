@@ -138,11 +138,15 @@ exports.genRpcMethodInfo = (protoFile, method, outputPath, protoImportMap, dirNa
  *
  * @param {string} typeName
  * @param {ProtoMessageTypeMap} messageTypeMap
+ * @param {ProtoInfoMap} protoImportMap
+ * @param {string} outputPath
+ * @param {RpcMethodInfo} methodInfo
  * @param {number} maxLevel
  * @param {number} level
+ * @param {string} dirName
  * @returns {Object}
  */
-exports.genRpcMethodFieldInfo = (typeName, messageTypeMap, maxLevel = 5, level = 1) => {
+exports.genRpcMethodFieldInfo = (typeName, messageTypeMap, protoImportMap, outputPath, methodInfo, maxLevel = 5, level = 1, dirName = 'services') => {
     let type = messageTypeMap.get(typeName);
     if (type == undefined) {
         return {};
@@ -157,10 +161,15 @@ exports.genRpcMethodFieldInfo = (typeName, messageTypeMap, maxLevel = 5, level =
             isMap = true;
         }
         if (exports.PROTO_BUFFER_BASE_TYPE.indexOf(field.type) < 0) {
-            if (messageTypeMap.get(field.type)) {
+            // pb type will have two schema: 'user.User' or 'User'
+            fieldType = (field.type.indexOf('.') < 0) ? type.parent.name + '.' + field.type : field.type;
+            if (messageTypeMap.has(fieldType)) {
                 if (level < maxLevel) {
-                    fieldType = field.type;
-                    fieldInfo = exports.genRpcMethodFieldInfo(field.type, messageTypeMap, maxLevel, level + 1);
+                    fieldInfo = exports.genRpcMethodFieldInfo(fieldType, messageTypeMap, protoImportMap, outputPath, methodInfo, maxLevel, level + 1, dirName);
+                    let fieldProtoInfo = protoImportMap.get(fieldType);
+                    if (fieldProtoInfo !== undefined) {
+                        methodInfo.protoMsgImportPath = exports.addIntoRpcMethodImportPathInfos(methodInfo.protoMsgImportPath, fieldProtoInfo.message, ProtoFile.genProtoImportPath(fieldProtoInfo.protoFile, outputPath, dirName));
+                    }
                 }
                 else {
                     fieldType = 'object';
@@ -192,6 +201,8 @@ exports.addIntoRpcMethodImportPathInfos = (protoMsgImportPaths, type, importPath
     if (!protoMsgImportPaths.hasOwnProperty(importPath)) {
         protoMsgImportPaths[importPath] = [];
     }
-    protoMsgImportPaths[importPath].push(type);
+    if (protoMsgImportPaths[importPath].indexOf(type) < 0) {
+        protoMsgImportPaths[importPath].push(type);
+    }
     return protoMsgImportPaths;
 };

@@ -219,7 +219,8 @@ class CLI {
             let method = serviceMethods[methodName];
             let outputPath = ProtoFile.genFullOutputServicePath(protoFile, service, method);
             let methodInfo = Proto.genRpcMethodInfo(protoFile, method, outputPath, this._protoImportMap);
-            let methodFieldInfo = Proto.genRpcMethodFieldInfo(`${methodInfo.namespace}.${methodInfo.requestTypeStr}`, this._protoMessageTypeMap, DEEP_SEARCH_LEVEL);
+            // get requestStr fieldInfo
+            let methodFieldInfo = Proto.genRpcMethodFieldInfo(`${methodInfo.namespace}.${methodInfo.requestTypeStr}`, this._protoMessageTypeMap, this._protoImportMap, outputPath, methodInfo, DEEP_SEARCH_LEVEL);
             if (!method.requestStream && !method.responseStream) {
                 methodInfo.callTypeStr = 'IRpcServerUnaryCall';
                 methodInfo.callGenerics = `<${methodInfo.requestTypeStr}>`;
@@ -291,12 +292,15 @@ class CLI {
             debug(`Generate gateway api method: ${service.name}.${methodName}`);
             let outputPath = ProtoFile.genFullOutputGatewayPath(protoFile, service, method);
             let methodInfo = Proto.genRpcMethodInfo(protoFile, method, outputPath, this._protoImportMap, 'router');
-            let methodFieldInfo = Proto.genRpcMethodFieldInfo(`${methodInfo.namespace}.${methodInfo.requestTypeStr}`, this._protoMessageTypeMap, DEEP_SEARCH_LEVEL);
+            // get requestStr fieldInfo
+            let requestMethodFieldInfo = Proto.genRpcMethodFieldInfo(`${methodInfo.namespace}.${methodInfo.requestTypeStr}`, this._protoMessageTypeMap, this._protoImportMap, outputPath, methodInfo, DEEP_SEARCH_LEVEL, 1, 'router');
+            // get responseStr fieldInfo
+            let responseMethodFieldInfo = Proto.genRpcMethodFieldInfo(`${methodInfo.namespace}.${methodInfo.responseTypeStr}`, this._protoMessageTypeMap, this._protoImportMap, outputPath, methodInfo, DEEP_SEARCH_LEVEL, 1, 'router');
             let outputDir = LibPath.dirname(outputPath);
             if (!LibFs.existsSync(outputDir)) {
                 LibFs.mkdirsSync(outputDir);
             }
-            LibFs.writeFileSync(outputPath, api_1.TplGatewayApi.print(methodInfo, methodFieldInfo));
+            LibFs.writeFileSync(outputPath, api_1.TplGatewayApi.print(methodInfo, requestMethodFieldInfo, responseMethodFieldInfo));
         });
     }
 }

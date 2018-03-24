@@ -28,7 +28,7 @@ var TplRpcServerService;
                     printer.printLn(`await ctx.validate(request, {`, 2);
                     methodRequestFieldNames.forEach((fieldName) => {
                         let fieldInfo = methodRequestField[fieldName];
-                        fieldInfo_1.TplFieldInfo.print(printer, fieldInfo, 3);
+                        fieldInfo_1.TplFieldInfo.printJoiValidate(printer, fieldInfo, 3);
                     });
                     printer.printLn(`});`, 2);
                     printer.printLn(`callback(null, new ${methodInfo.responseTypeStr}());`, 2);
@@ -42,7 +42,7 @@ var TplRpcServerService;
                     printer.printLn(`await ctx.validate(request, {`, 2);
                     methodRequestFieldNames.forEach((fieldName) => {
                         let fieldInfo = methodRequestField[fieldName];
-                        fieldInfo_1.TplFieldInfo.print(printer, fieldInfo, 3);
+                        fieldInfo_1.TplFieldInfo.printJoiValidate(printer, fieldInfo, 3);
                     });
                     printer.printLn(`});`, 2);
                     printer.printLn(`call.write(new ${methodInfo.responseTypeStr}());`, 2);
@@ -59,7 +59,7 @@ var TplRpcServerService;
                     printer.printLn(`await ctx.validate(request, {`, 3);
                     Object.keys(methodRequestField).forEach((fieldName) => {
                         let fieldInfo = methodRequestField[fieldName];
-                        fieldInfo_1.TplFieldInfo.print(printer, fieldInfo, 4);
+                        fieldInfo_1.TplFieldInfo.printJoiValidate(printer, fieldInfo, 4);
                     });
                     printer.printLn(`});`, 3);
                     printer.printLn(`callback(null, new ${methodInfo.responseTypeStr}());`, 3);
@@ -75,7 +75,7 @@ var TplRpcServerService;
                     printer.printLn(`await ctx.validate(request, {`, 3);
                     Object.keys(methodRequestField).forEach((fieldName) => {
                         let fieldInfo = methodRequestField[fieldName];
-                        fieldInfo_1.TplFieldInfo.print(printer, fieldInfo, 4);
+                        fieldInfo_1.TplFieldInfo.printJoiValidate(printer, fieldInfo, 4);
                     });
                     printer.printLn(`});`, 3);
                     printer.printLn(`call.write(new ${methodInfo.responseTypeStr}());`, 3);

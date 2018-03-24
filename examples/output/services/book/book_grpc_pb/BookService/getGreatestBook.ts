@@ -10,7 +10,7 @@ export const getGreatestBookHandler: RpcMiddleware = async (ctx: RpcContext, nex
             await ctx.validate(request, {
                 isbn: joiType.vInt64.activate().required().greater(5).less(10),
             });
-            callback(e, new Book());
+            callback(null, new Book());
         } catch (e) {
             callback(e, null);
         }
