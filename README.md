@@ -20,14 +20,9 @@ matrix grpc --help
 
 ## Support
 
-- [x] Support STREAM /Unary parameter  validation using `joi` library in gRPC server api.
-      - grpc.ServerUnaryCall
-      - grpc.ServerReadableStream
-      - grpc.ServerWriteableStream
-      - grpc.ServerDuplexStream
-- [x] Support  for POST/GET parameter validation using `joi` library  in Koa gateway api.
-- [x] Support for auto-generate Mock data in Koa gateway api
-- [ ] Support for auto-generating UnitTest code.
+- [x] Automatically generate validation code for GET / POST / gRPC params.
+- [x] Automatically generate mock data as the response of the gateway api.
+- [ ] Automatically generate unit test code for micro services
 
 
 ## Command
