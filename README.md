@@ -36,7 +36,7 @@ Generate:
 from proto files.
 
 ```bash
-sasdn proto [options]
+matrix proto [options]
 
   Options:
 
@@ -62,7 +62,7 @@ Generate:
 from proto files.
 
 ```bash
-sasdn grpc [options]
+matrix grpc [options]
 
   Options:
 
